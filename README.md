@@ -1,32 +1,6 @@
-# 🛣️ RoadWise — Edge-AI Based Real-Time Pothole Detection & Classification
----
+# 🛣️ RoadWise — Edge-AI Road Condition Monitoring
 
-## 📌 Table of Contents
-
-1. [Project Overview](#-project-overview)
-2. [Abstract](#-abstract)
-3. [Problem Statement](#-problem-statement)
-4. [Key Features](#-key-features)
-5. [System Architecture](#-system-architecture)
-6. [Core Modules](#-core-modules)
-7. [Tech Stack](#-tech-stack)
-8. [Project Structure](#-project-structure)
-9. [Prerequisites](#-prerequisites)
-10. [Setup & Installation](#-setup--installation)
-11. [How It Works](#-how-it-works)
-12. [Signal Classification Logic](#-signal-classification-logic)
-13. [Civic Dashboard & Geo-Tagged Reporting](#-civic-dashboard--geo-tagged-reporting)
-14. [VETS Evaluation](#-vets-evaluation)
-15. [Development Roadmap](#-development-roadmap)
-16. [Contributing](#-contributing)
-
----
-
-## 🌐 Project Overview
-
-**RoadWise** is a mobile-first, **Edge-AI powered Android application** for real-time pothole detection, severity classification, and geo-tagged civic reporting. The system uses **only the smartphone's built-in accelerometer and GPS** — no external hardware, no camera, no cloud round-trip.
-
-By running entirely on-device, RoadWise ensures **low latency, user privacy, and seamless operation even in low-connectivity zones** — making it a highly scalable, cost-effective solution for road condition monitoring across large populations.
+**Turning every smartphone into a road health sensor — no extra hardware required.**
 
 ---
 
@@ -34,426 +8,267 @@ By running entirely on-device, RoadWise ensures **low latency, user privacy, and
 
 Poor road infrastructure remains a major safety concern in India, contributing to thousands of accidents annually due to undetected potholes and inefficient maintenance workflows. Existing reporting systems depend on manual complaints, resulting in delayed responses and lack of structured, actionable data for municipal authorities.
 
-This project proposes a **mobile-based Edge-AI system** that enables real-time pothole detection, classification, and geo-tagged reporting using only a smartphone's built-in sensors. The system eliminates the need for external hardware by leveraging the phone's **accelerometer and GPS**, making it highly scalable and easy to deploy across large populations.
+This project proposes a mobile-based Edge-AI system that enables real-time pothole detection, classification, and geo-tagged reporting using only a smartphone's built-in sensors. The system eliminates the need for external hardware by leveraging the phone's accelerometer and GPS, making it highly scalable and easy to deploy across large populations.
 
-The application runs **on-device**, ensuring low latency, privacy, and minimal reliance on cloud infrastructure. By combining **inertial sensing with spectral analysis**, the system accurately detects road anomalies and distinguishes between potholes and speed breakers, significantly reducing false positives.
+The application runs on-device, ensuring low latency, privacy, and minimal reliance on cloud infrastructure. By combining inertial sensing with spectral analysis, the system accurately detects road anomalies and distinguishes between potholes and speed breakers, significantly reducing false positives.
 
 ---
 
-## ⚠️ Problem Statement
+## 🚨 Problem Statement
 
-| Issue | Impact |
-|---|---|
-| Manual pothole reporting systems | Slow response, incomplete data |
-| Reactive maintenance (fix after failure) | Higher repair costs, more accidents |
-| Lack of structured geospatial road data | No prioritization of critical zones |
-| Expensive dedicated sensors/hardware | Low scalability and deployment cost |
+India's road infrastructure crisis is not just an inconvenience — it is a public health emergency backed by stark data:
 
-**RoadWise** addresses all four by turning every smartphone into a passive, intelligent road quality sensor.
+> **📊 53% rise in pothole fatalities between 2020–2024, totalling 9,438 deaths**
+> — Source: MoRTH Parliament Data
+
+> **🌍 India has just 1% of the world's vehicles, yet accounts for 11% of global road crash deaths**
+> — Source: World Bank
+
+> **💸 Road crashes cost India 3.14% of GDP annually** — a figure that dwarfs most infrastructure budgets.
+
+> **⏳ Average delay between road damage and repair: 3–6 months** — creating prolonged hazard windows for millions of daily commuters.
+
+Despite the scale of this crisis, most municipal road monitoring still relies on citizen complaints via phone or web portals — processes that are slow, unstructured, and difficult to act on at scale. There is a clear, urgent need for an automated, data-driven, and deployable solution.
 
 ---
 
 ## ✨ Key Features
 
+| # | Feature | Description |
+|---|---------|-------------|
+| 📱 | **Zero Extra Hardware** | Works entirely with the sensors already in your smartphone — no attachments needed |
+| ⚡ | **Real-Time Edge AI** | On-device inference with sub-100ms latency, no internet required for detection |
+| 🔊 | **FFT Spectral Analysis** | Distinguishes potholes from speed breakers using frequency-domain signal features |
+| 📍 | **GPS Geo-Tagging + Severity** | Every event is tagged with location and classified as Low / Medium / High severity |
+| 🗺️ | **Live Road Health Heatmap** | Interactive map showing pothole hotspots updated in real time from crowdsourced data |
+| 📴 | **Offline Capable** | Events are queued locally and synced to the cloud once connectivity is restored |
+| 🔒 | **Privacy-First** | No continuous audio/video recording; only accelerometer and GPS data are used |
+| 🤝 | **Crowdsourced Confidence** | Multiple user reports of the same event increase confidence scoring for authorities |
+
+---
+
+## 🏗️ Core Architecture
+
+The architecture consists of three core modules:
+
+### 1. 📡 Inertial Sensing & Signal Acquisition
+
+The smartphone's built-in accelerometer continuously captures vertical and longitudinal motion data while the user is traveling. These signals reflect road surface irregularities but are inherently noisy due to varying driving conditions and user behavior.
+
+### 2. 🔬 Spectral Analysis & Event Classification
+
+The captured time-series accelerometer data is transformed into the frequency domain using Fast Fourier Transform (FFT).
+
+* **Potholes** generate sharp, high-amplitude, broadband spikes due to sudden impact.
+* **Speed breakers** produce smoother, periodic waveforms with dominant low-frequency components.
+
+By analyzing spectral features such as energy distribution, dominant frequencies, and signal variance, a lightweight on-device classifier (e.g., Random Forest or 1D-CNN) accurately distinguishes between potholes and speed breakers. This improves detection precision while maintaining computational efficiency on mobile devices.
+
+#### 📊 Frequency Signature Comparison
+
+| Road Event | Frequency Profile | Amplitude | Duration | Key Characteristic |
+|------------|------------------|-----------|----------|--------------------|
+| 🟢 **Normal Road** | Low, consistent baseline across all bands | Low | Continuous | Negligible spectral energy; flat FFT output |
+| 🟡 **Speed Breaker** | Smooth periodic; dominant low-frequency components (1–5 Hz) | Moderate | Extended (0.5–1.5s) | Narrow-band, low-frequency peak; gradual rise and fall |
+| 🔴 **Pothole** | Broadband spike across multiple frequency bands (5–50 Hz) | High | Short (< 0.3s) | Wide energy spread; sharp transient with high kurtosis |
+
+### 3. 🗺️ Geo-Tagging & Civic Dashboard Integration
+
+Each detected event is tagged with GPS coordinates using the smartphone's location services. The data is then uploaded to a centralized dashboard where authorities can monitor:
+
+* **Pothole hotspots** (heatmaps)
+* **Severity levels** (based on vibration intensity)
+* **Temporal trends** for predictive maintenance
+
+The system can generate automated reports and alerts, enabling faster response and better prioritization of road repairs.
+
+---
+
+## 🤖 ML Model
+
+### Feature Set
+
+The classifier operates on the following spectral and statistical features extracted from each windowed signal segment:
+
 | Feature | Description |
-|---|---|
-| 📳 **Accelerometer-Based Detection** | Uses only the phone's built-in inertial sensor — no camera needed |
-| 🔬 **FFT Spectral Analysis** | Converts raw time-series vibration data into frequency domain for classification |
-| 🤖 **On-Device Edge AI Classifier** | Lightweight Random Forest / 1D-CNN model runs entirely on-device |
-| 🚗 **Pothole vs. Speed Breaker Classification** | Distinguishes road anomaly type using spectral feature signatures |
-| 📍 **GPS Geo-Tagging** | Every detected event is tagged with precise GPS coordinates |
-| 🗺️ **Live Heatmap Dashboard** | Authorities can view pothole hotspots on an interactive map |
-| 📊 **Severity Grading** | Events rated by vibration intensity (G-force magnitude) |
-| 📈 **Temporal Trend Analysis** | Track pothole clusters over time for predictive maintenance |
-| 🔔 **Automated Alerts & Reports** | System generates structured reports for municipal dashboards |
-| 🔋 **Low Power & Offline-First** | Edge processing eliminates constant cloud dependency |
+|---------|-------------|
+| **Peak Frequency** | The dominant frequency bin with maximum energy in the FFT output |
+| **Spectral Energy** | Total power across the spectrum; high energy indicates a significant road event |
+| **Energy Distribution** | Ratio of energy across low, mid, and high frequency bands to identify event type |
+| **Spectral Variance** | Spread of energy across the spectrum; higher for potholes than speed breakers |
+| **Peak Amplitude** | Maximum instantaneous acceleration value during the event window |
+| **RMS (Root Mean Square)** | Effective signal magnitude; correlates with severity level |
+| **Kurtosis** | Statistical sharpness of the signal distribution; very high for impulse events like potholes |
+| **Zero Crossing Rate** | Rate at which the signal crosses zero; differentiates smooth from abrupt waveforms |
+
+### Performance Targets
+
+| Metric | Target |
+|--------|--------|
+| **Classification Accuracy** | > 85% |
+| **False Positive Rate** | < 10% |
+| **Inference Latency** | < 100ms (on-device) |
+| **Minimum Training Samples** | 500 labelled events |
 
 ---
 
-## 🏗️ System Architecture
+## ⚙️ How It Works
 
-```
-┌───────────────────────────── Android Device (Edge) ──────────────────────────────┐
-│                                                                                    │
-│   ┌──────────────────────┐                                                         │
-│   │  Built-in            │                                                         │
-│   │  ACCELEROMETER       │  (Z-axis, X-axis continuous sampling)                  │
-│   └──────────┬───────────┘                                                         │
-│              │ Raw time-series vibration data                                      │
-│              ▼                                                                     │
-│   ┌──────────────────────────────────────────────────────────────────────────┐    │
-│   │              MODULE 1: Inertial Sensing & Signal Acquisition              │    │
-│   │   - Continuous accelerometer sampling while vehicle is in motion         │    │
-│   │   - Captures vertical & longitudinal motion reflecting road surface      │    │
-│   │   - Raw signals are noisy; pre-processing applied (filtering/windowing)  │    │
-│   └──────────────────────────┬───────────────────────────────────────────────┘    │
-│                              │ Windowed time-series segments                       │
-│                              ▼                                                     │
-│   ┌──────────────────────────────────────────────────────────────────────────┐    │
-│   │           MODULE 2: Spectral Analysis & Event Classification              │    │
-│   │                                                                           │    │
-│   │   Fast Fourier Transform (FFT)                                            │    │
-│   │   ┌─────────────────────────────────────────────────────────────────┐    │    │
-│   │   │  Time Domain Signal ──► Frequency Domain Spectrum               │    │    │
-│   │   │                                                                   │    │    │
-│   │   │  Extracted Features:                                              │    │    │
-│   │   │   • Energy Distribution across frequency bands                   │    │    │
-│   │   │   • Dominant Frequencies (peak Hz)                               │    │    │
-│   │   │   • Signal Variance & RMS amplitude                              │    │    │
-│   │   │   • Broadband spike detection                                    │    │    │
-│   │   └─────────────────────────────────────────────────────────────────┘    │    │
-│   │                              │                                            │    │
-│   │            ┌─────────────────▼──────────────────┐                        │    │
-│   │            │  On-Device Classifier               │                        │    │
-│   │            │  (Random Forest / 1D-CNN)           │                        │    │
-│   │            │                                     │                        │    │
-│   │            │  POTHOLE      ──► Broadband high-   │                        │    │
-│   │            │                   amplitude spike   │                        │    │
-│   │            │  SPEED BREAKER ─► Smooth, periodic  │                        │    │
-│   │            │                   low-frequency wave│                        │    │
-│   │            └─────────────────────────────────────┘                        │    │
-│   └──────────────────────────┬───────────────────────────────────────────────┘    │
-│                              │ Classified event + intensity score                  │
-│                              ▼                                                     │
-│   ┌──────────────────────────────────────────────────────────────────────────┐    │
-│   │               MODULE 3: Geo-Tagging & Civic Dashboard Integration        │    │
-│   │                                                                           │    │
-│   │   GPS / Location Provider ──► Lat / Lng attached to every event         │    │
-│   │   Local Storage             ──► Events cached on-device offline-first    │    │
-│   │   Cloud Sync (Firebase)     ──► Upload to centralized dashboard          │    │
-│   └──────────────────────────┬───────────────────────────────────────────────┘    │
-│                              │                                                     │
-└──────────────────────────────┼─────────────────────────────────────────────────────┘
-                               │
-                               ▼
-            ┌──────────────────────────────────────────────┐
-            │         Municipal Civic Dashboard             │
-            │                                               │
-            │  🗺️  Pothole Hotspot Heatmaps                 │
-            │  📊  Severity Levels (vibration intensity)    │
-            │  📅  Temporal trends & predictive analytics   │
-            │  🔔  Automated alerts & repair prioritization │
-            └──────────────────────────────────────────────┘
-```
+The end-to-end detection and reporting pipeline runs as follows:
 
----
-
-## 🔩 Core Modules
-
-### Module 1 — Inertial Sensing & Signal Acquisition
-
-The smartphone's **built-in accelerometer** continuously captures vertical (Z-axis) and longitudinal motion data while the user is traveling. These signals directly reflect road surface irregularities. Key steps:
-
-- **Continuous Sampling** — Accelerometer polled at high frequency (`SENSOR_DELAY_GAME`) to capture sharp transient events
-- **Signal Windowing** — Raw data is split into overlapping time windows for analysis
-- **Noise Reduction** — High-pass filtering removes DC gravity offset and low-frequency vehicle body motion
-- **Normalization** — Signals normalized across different device orientations and mounting positions
-
----
-
-### Module 2 — Spectral Analysis & Event Classification
-
-The core intelligence of the system. Raw time-series accelerometer data is transformed into the **frequency domain using Fast Fourier Transform (FFT)**.
-
-#### Why FFT?
-
-| Road Event | Time-Domain Signature | Frequency-Domain Signature |
-|---|---|---|
-| **Pothole** | Sharp, sudden high-amplitude spike | Broadband energy burst across wide frequency range |
-| **Speed Breaker** | Gradual rise and fall | Dominant low-frequency components, periodic and smooth |
-| **Normal Road** | Low-amplitude random noise | Flat, low-energy spectrum |
-
-#### Spectral Features Extracted
-
-1. **Energy Distribution** — Power spectral density across defined frequency bands
-2. **Dominant Frequency** — Peak frequency (Hz) in the spectrum
-3. **Signal Variance** — Measure of amplitude spread (high for potholes)
-4. **RMS Amplitude** — Root mean square of the signal window
-5. **Spectral Entropy** — Measures randomness; high entropy = broadband = pothole
-
-#### On-Device Classifier
-
-A lightweight classifier — **Random Forest** or **1D-CNN** — trained on labeled spectral feature vectors:
-
-- **Input:** Extracted spectral feature vector per window
-- **Output:** `POTHOLE` | `SPEED_BREAKER` | `NORMAL`
-- **Runs entirely on-device** — no network call during inference
-- **Optimized for mobile** — low memory footprint, real-time throughput
-
----
-
-### Module 3 — Geo-Tagging & Civic Dashboard Integration
-
-Every classified event is automatically paired with precise geolocation data:
-
-- **GPS Location** — `FusedLocationProviderClient` provides high-accuracy coordinates
-- **Event Record** — Stores: `latitude`, `longitude`, `timestamp`, `event_type`, `intensity (G-force)`
-- **Local Cache** — Events stored on-device for offline-first operation
-- **Cloud Sync** — Uploaded to a centralized server / Firebase Firestore when connectivity is available
-
-#### Civic Dashboard Capabilities
-
-| Dashboard Feature | Description |
-|---|---|
-| 🗺️ **Pothole Heatmaps** | Geographic density visualization of detected potholes |
-| 🔴 **Severity Indicators** | Color-coded markers based on vibration intensity |
-| 📅 **Temporal Trends** | Time-series charts to track deterioration or improvement |
-| 🔔 **Automated Reports** | Structured repair prioritization reports for municipal teams |
-| 📍 **Cluster Analysis** | Hotspot identification for predictive maintenance scheduling |
+1. **App Start** — User opens RoadWise and begins a trip; background sensing service is activated.
+2. **Sensor Collection** — The accelerometer streams Z-axis (vertical) and X-axis (longitudinal) data at 100 Hz.
+3. **Noise Filtering** — A low-pass Butterworth filter removes high-frequency electronic noise unrelated to road events.
+4. **Windowing** — The signal is divided into overlapping time windows (e.g., 256 samples with 50% overlap) for continuous analysis.
+5. **FFT Transform** — Each window is converted to the frequency domain; spectral features are extracted.
+6. **Classification** — The on-device TFLite model classifies the segment as: `Normal`, `Speed Breaker`, or `Pothole`, along with a severity score.
+7. **GPS Tagging** — If a pothole is detected, the Fused Location Provider captures the precise GPS coordinate at the moment of impact.
+8. **Firebase Upload** — The event payload (location, severity, timestamp, features) is pushed to Firestore. If offline, it is queued locally in Room DB.
+9. **Dashboard Update** — The civic dashboard updates the heatmap and severity layer in real time.
+10. **Driver Alert** — A non-intrusive haptic + visual notification is shown to the driver for awareness.
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Category | Technology |
-|---|---|
-| **Language** | Kotlin |
-| **Build System** | Gradle (Groovy DSL) |
-| **Inertial Sensing** | Android `SensorManager` — `TYPE_ACCELEROMETER` |
-| **Signal Processing** | Fast Fourier Transform (FFT) |
-| **On-Device ML** | Random Forest / 1D-CNN (TensorFlow Lite `.tflite`) |
-| **Location** | Android `FusedLocationProviderClient` (GPS + Network) |
-| **Maps & Visualization** | osmdroid 6.1.18 (OpenStreetMap) |
-| **Cloud Sync** | Firebase Firestore (planned) |
-| **Networking** | Retrofit 2.9.0 + OkHttp 4.11.0 |
-| **Concurrency** | Kotlin Coroutines + AndroidX Lifecycle KTX |
-| **UI** | ViewBinding, ConstraintLayout, Material 3 |
-| **Min SDK** | API 24 (Android 7.0 Nougat) |
-| **Target SDK** | API 34 (Android 14) |
+| Category | Technology | Purpose |
+|----------|-----------|---------|
+| **Mobile App** | Kotlin + Android SDK | Core application logic, UI, background services |
+| **Signal Processing** | FFT (JTransforms / custom) | Frequency-domain feature extraction from accelerometer data |
+| **Model Training** | Python + Scikit-learn | Offline training of Random Forest / 1D-CNN classifier |
+| **On-Device Inference** | TensorFlow Lite | Lightweight, fast ML inference running on the mobile device |
+| **Location Services** | Fused Location Provider | GPS coordinate capture at event detection time |
+| **Cloud Backend** | Firebase Firestore | Real-time cloud storage and sync of road event data |
+| **Map Visualization** | Google Maps API / osmdroid | Heatmap rendering and pothole marker display |
+| **Sensor Access** | Android Sensor Framework | Low-level access to accelerometer and gyroscope hardware |
 
 ---
 
 ## 📁 Project Structure
 
 ```
-Roadwise-main/
-├── app/
-│   ├── build.gradle                      # App-level dependencies & build config
-│   └── src/main/
-│       ├── AndroidManifest.xml           # Permissions & component declarations
-│       ├── assets/
-│       │   └── classifier_model.tflite   # On-device pothole classifier model
-│       └── kotlin/com/roadwise/
-│           ├── MainActivity.kt           # Entry point, orchestration, UI
-│           ├── HistoryActivity.kt        # Past detections viewer
-│           ├── SettingsActivity.kt       # Sensitivity & preference controls
-│           ├── sensors/
-│           │   └── BumpDetector.kt       # Accelerometer sampling & windowing
-│           ├── signal/
-│           │   ├── FFTProcessor.kt       # Fast Fourier Transform pipeline
-│           │   └── FeatureExtractor.kt   # Spectral feature extraction
-│           ├── classifier/
-│           │   └── RoadEventClassifier.kt # On-device ML inference (RF / 1D-CNN)
-│           ├── models/
-│           │   └── PotholeData.kt        # Data model: lat, lng, type, intensity, timestamp
-│           ├── mapping/
-│           │   └── AdaptiveRoadOverlay.kt # OSM heatmap & severity overlay
-│           └── utils/
-│               ├── PotholeRepository.kt  # Local data persistence
-│               ├── RoadQualityScorer.kt  # A–F road segment grading
-│               └── PotholeAdapter.kt     # RecyclerView adapter (History screen)
-├── ARCHITECTURE_DIAGRAM.md
-├── ROADMAP.md
-├── build.gradle                          # Root build config
-├── settings.gradle
-└── local.properties                      # API keys (gitignored)
+RoadWise/
+│
+├── android-app/                    # Android application source
+│   ├── sensing/                    # Accelerometer data collection & filtering
+│   ├── processing/                 # FFT, windowing, feature extraction
+│   ├── classification/             # TFLite model integration & inference engine
+│   ├── reporting/                  # Firebase upload, offline queue (Room DB)
+│   └── ui/                         # Jetpack Compose / XML UI components
+│
+├── ml-model/                       # Machine learning pipeline
+│   ├── data_collection/            # Raw accelerometer data & labelling scripts
+│   ├── preprocessing/              # Noise filtering, windowing, FFT scripts
+│   ├── training/                   # Model training (Random Forest / 1D-CNN)
+│   ├── evaluation/                 # Metrics, confusion matrix, cross-validation
+│   └── conversion/                 # TFLite conversion and quantization scripts
+│
+├── dashboard/                      # Civic monitoring dashboard
+│   ├── heatmap/                    # Pothole hotspot map visualization
+│   ├── reports/                    # Automated PDF/CSV report generation
+│   └── alerts/                     # Notification & alert dispatch system
+│
+└── docs/                           # Project documentation and research references
 ```
 
 ---
 
-## ✅ Prerequisites
+## 🚀 Setup and Installation
 
-| Requirement | Details |
-|---|---|
-| **Android Studio** | Hedgehog (2023.1.1) or newer |
-| **JDK** | Java 8 (bundled with Android Studio) |
-| **Android SDK** | API 34 (compile), API 24 (minimum) |
-| **Gradle** | Wrapper included — `./gradlew` |
-| **Physical Device** | **Required** — emulators do not have a real accelerometer |
+### Prerequisites
+
+- Android Studio (Hedgehog or later)
+- Android device with API 26+ (Android 8.0 Oreo or higher)
+- Python 3.8+ with `pip`
+- A Firebase project with Firestore and Authentication enabled
+- Google Maps API key (or osmdroid for offline maps)
 
 ---
 
-## ⚙️ Setup & Installation
-
-### 1. Clone the Repository
+### 📱 Android App Setup
 
 ```bash
+# 1. Clone the repository
 git clone https://github.com/your-org/roadwise.git
-cd roadwise
-```
+cd roadwise/android-app
 
-### 2. Open in Android Studio
+# 2. Add your Firebase configuration file
+# Download google-services.json from Firebase Console
+# Place it in: android-app/app/google-services.json
 
-1. **File → Open** → select the `Roadwise-main` folder
-2. Wait for **Gradle sync** to complete
-3. Ensure **Android SDK API 34** is installed via SDK Manager
+# 3. Add your Maps API key in local.properties
+echo "MAPS_API_KEY=your_api_key_here" >> local.properties
 
-### 3. Run on a Physical Device
-
-```
-1. Enable Developer Options on your Android phone
-2. Enable USB Debugging
-3. Connect via USB
-4. Select your device in the run target dropdown
-5. Click ▶️ Run
-```
-
-```bash
-# Or via CLI:
+# 4. Build and run on a connected device or emulator
+./gradlew assembleDebug
 ./gradlew installDebug
 ```
 
-> ⚠️ **A real physical device is mandatory.** The accelerometer is a hardware sensor — emulators cannot simulate real road vibrations.
-
 ---
 
-## ⚙️ How It Works
+### 🧠 ML Model Training
 
-### End-to-End Detection Flow
+```bash
+# 1. Navigate to the ml-model directory
+cd roadwise/ml-model
 
-```
-1. USER DRIVES  →  Accelerometer streams Z-axis + X-axis data continuously
+# 2. Install Python dependencies
+pip install -r requirements.txt
+# Installs: numpy, scipy, scikit-learn, tensorflow, pandas, matplotlib
 
-2. WINDOWING    →  Sliding window segments raw signal (e.g., 256 samples @ 50 Hz)
+# 3. Preprocess raw accelerometer data
+python preprocessing/preprocess.py --input data_collection/raw/ --output data_collection/processed/
 
-3. FFT          →  Each window transformed into frequency domain spectrum
+# 4. Train the classifier
+python training/train_model.py --data data_collection/processed/ --output training/saved_model/
 
-4. FEATURES     →  Spectral energy, dominant frequency, variance, RMS, entropy extracted
+# 5. Evaluate performance
+python evaluation/evaluate.py --model training/saved_model/
 
-5. CLASSIFIER   →  On-device Random Forest / 1D-CNN predicts:
-                     • POTHOLE        (broadband high-amplitude spike)
-                     • SPEED BREAKER  (low-frequency smooth periodic wave)
-                     • NORMAL ROAD    (flat low-energy noise)
-
-6. GPS TAG      →  Classification result paired with current GPS coordinates
-
-7. STORE        →  Event saved locally (offline-first)
-
-8. SYNC         →  Uploaded to cloud dashboard when connected
-
-9. MAP          →  Heatmap updated on OpenStreetMap overlay
+# 6. Convert to TensorFlow Lite for on-device deployment
+python conversion/convert_to_tflite.py \
+    --model training/saved_model/ \
+    --output ../android-app/app/src/main/assets/roadwise_model.tflite \
+    --quantize
 ```
 
 ---
 
-## 📡 Signal Classification Logic
+## 🌍 Social Impact
 
-### Pothole Spectral Signature
-- **Sharp, sudden impact** → produces **high-amplitude, broadband frequency burst**
-- Energy is spread across **wide frequency range** (short-duration impulse)
-- High **spectral entropy** and high **signal variance**
+RoadWise is designed not just as a technical tool, but as a platform for civic empowerment and sustainable development.
 
-### Speed Breaker Spectral Signature
-- **Gradual, periodic rise-and-fall** → produces **dominant low-frequency components**
-- Energy concentrated in **narrow, low-frequency bands**
-- Low spectral entropy, smooth and symmetric waveform
+| UN Goal | Relevance |
+|---------|-----------|
+| 🏗️ **SDG 9 — Resilient Infrastructure** | Enables data-driven road maintenance, reducing infrastructure degradation and improving public safety |
+| 🏙️ **SDG 11 — Sustainable Cities & Communities** | Supports smarter, safer urban mobility by giving city authorities real-time, structured road health data |
 
-```
-FFT Spectrum Comparison:
+**Additional Impact:**
 
-Pothole:        |||||||||||||||||||||||||  (wide broadband burst)
-Speed Breaker:  ||||                       (narrow, low-frequency peak)
-Normal Road:    |                          (low flat noise floor)
-
-          0Hz            25Hz            50Hz
-```
+- 🚗 **Reduces vehicle damage costs** for everyday commuters by providing pothole-aware navigation and early alerts
+- 🏛️ **Free automated road health data** delivered to municipal authorities — no procurement budget required
+- 📲 **Passive citizen participation** — users contribute to a public good just by driving with the app open
+- 📉 **Accelerates repair prioritization** by surfacing severity-ranked hotspots instead of a flat complaint queue
 
 ---
 
-## 🗺️ Civic Dashboard & Geo-Tagged Reporting
+## 👥 Team
 
-Each verified road event is uploaded with the following structured data:
-
-```json
-{
-  "event_id": "uuid-1234",
-  "type": "POTHOLE",
-  "latitude": 12.9716,
-  "longitude": 77.5946,
-  "timestamp": "2025-11-14T10:23:45Z",
-  "intensity": 2.7,
-  "severity": "Critical",
-  "device_speed_kmph": 35
-}
-```
-
-### Dashboard Outputs
-
-| Output | Description |
-|---|---|
-| 🗺️ **Heatmap** | Color-coded pothole density map by geographic area |
-| 📊 **Severity Report** | Breakdown of potholes by Critical / Severe / Moderate / Minor |
-| 📅 **Temporal Chart** | Detection frequency over time per road segment |
-| 🔔 **Alert Trigger** | Auto-alert when a segment exceeds a severity threshold |
-| 📋 **Repair Priority List** | Ranked list of road segments for maintenance scheduling |
+| Name | Student ID | Role |
+|------|-----------|------|
+| Bhuvan Sharma | 2022A1R003 | Android Development & Sensor Integration |
+| Simriti Kak | 2022A1R004 | ML Model Training & Signal Processing |
+| Pratham Seth | 2022A1R037 | Backend, Dashboard & Firebase Integration |
+| **Asst. Prof. Saurabh Sharma** | — | Supervisor, Dept. of Computer Science & Engineering |
 
 ---
 
-## 📈 VETS Evaluation
+## 📜 Conclusion
 
-### ✅ Viability
-- **Zero external hardware cost** — deployed on any Android smartphone (API 24+)
-- Works on buses, cabs, private vehicles — scalable across entire vehicle fleets
-- Edge processing ensures functionality in **low / no connectivity areas**
-- Distribution via Play Store enables mass citizen adoption
-
-### ✅ Engineering Depth
-- **FFT-based spectral analysis** of inertial time-series data — signal processing rigor
-- **Frequency-domain feature engineering** (energy distribution, dominant frequency, RMS, entropy)
-- **Lightweight on-device classifier** (Random Forest / 1D-CNN) optimized for mobile inference
-- **Sensor fusion design** — multi-axis accelerometer + GPS correlation
-- Robust false-positive suppression via spectral signature matching (not simple threshold)
-
-### ✅ Trend Alignment
-- 🌐 **Edge Computing & Edge AI** — inference on the device, not the cloud
-- 🏙️ **Smart Cities & AIoT** — citizens as passive infrastructure sensors
-- 🔮 **Predictive Maintenance** — data-driven scheduling over reactive repairs
-- 📱 **Mobile-First Civic Tech** — scalable, no infra investment required
-
-### ✅ Social & Sustainability Impact
-- Directly reduces road accidents and vehicle damage from undetected potholes
-- Enables **proactive, data-driven governance** — shifting from complaint-driven to evidence-driven repair
-- Citizens contribute passively — no extra effort or behavior change required
-- Municipal authorities gain **structured, geo-tagged, severity-graded** road condition data at negligible cost
+By leveraging widely available smartphones and edge AI techniques, this solution offers a cost-effective, scalable, and real-time approach to road condition monitoring. It empowers citizens to passively contribute data while providing municipal authorities with actionable insights for smarter infrastructure maintenance.
 
 ---
 
-## 🗺️ Development Roadmap
+*Because every road deserves to be monitored, not just repaired.*
 
-| Phase | Status | Description |
-|---|---|---|
-| **Phase 1: Foundation** | ✅ Complete | Android project setup, permissions, UI scaffold, Gradle config |
-| **Phase 2: Sensor Pipeline** | 🏗️ In Progress | Accelerometer sampling, windowing, noise filtering |
-| **Phase 3: FFT & Feature Extraction** | 🏗️ In Progress | FFT processing, spectral feature computation |
-| **Phase 4: On-Device Classifier** | 📋 Planned | Train & deploy RF / 1D-CNN TFLite model |
-| **Phase 5: Geo-Tagging** | 📋 Planned | FusedLocationProvider, event + GPS correlation |
-| **Phase 6: Local Storage** | 📋 Planned | Offline-first data persistence |
-| **Phase 7: Cloud & Dashboard** | 📋 Planned | Firebase Firestore sync, civic dashboard integration |
-| **Phase 8: Heatmap Visualization** | 📋 Planned | OSM overlay, severity color mapping |
-| **Phase 9: Optimization** | 📋 Planned | Battery tuning, sensitivity controls, UX polish |
 
----
-
-## 🤝 Contributing
-
-1. **Fork** this repository
-2. Create a feature branch: `git checkout -b feature/your-feature`
-3. Commit your changes: `git commit -m "feat: describe your change"`
-4. Push: `git push origin feature/your-feature`
-5. Open a **Pull Request**
-
----
-
-## 📜 License
-
-This project is licensed under the **MIT License**. See [`LICENSE`](LICENSE) for details.
-
----
-
-<div align="center">
-
-**RoadWise** — Turning every smartphone into a smart road sensor. 🛣️
-
-*Group No. 02 | Edge-AI Systems Project*
-
-</div>
