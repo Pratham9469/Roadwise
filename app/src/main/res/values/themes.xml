@@ -1,12 +1,19 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Theme.RoadWise" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+<<<<<<< HEAD
         <item name="colorPrimary">@color/neon_primary</item>
         <item name="colorPrimaryVariant">@color/neon_primary_dim</item>
         <item name="colorOnPrimary">@color/neon_background</item>
+=======
+        <item name="colorPrimary">@color/brand_teal</item>
+        <item name="colorPrimaryVariant">@color/brand_teal</item>
+        <item name="colorOnPrimary">@color/white</item>
+>>>>>>> 6995d49fbe696b0cdf88c348dd63198f6e235ed7
         <item name="colorSecondary">@color/brand_amber</item>
         <item name="colorSecondaryVariant">@color/brand_amber_dark</item>
         <item name="colorOnSecondary">@color/black</item>
         
+<<<<<<< HEAD
         <item name="android:colorBackground">@color/neon_background_lowest</item>
         <item name="colorSurface">@color/neon_surface</item>
         <item name="colorOnBackground">@color/neon_text_high</item>
@@ -31,4 +38,19 @@
         <item name="android:background">@android:color/transparent</item>
     </style>
 
+=======
+        <item name="android:colorBackground">@color/pearl_background</item>
+        <item name="colorSurface">@color/pearl_surface</item>
+        <item name="colorOnBackground">@color/text_high_emphasis_light</item>
+        <item name="colorOnSurface">@color/text_high_emphasis_light</item>
+
+        <item name="glassSurface">@color/pearl_surface_glass</item>
+        <item name="glassSurfaceDeep">@color/pearl_surface_glass</item>
+        <item name="glassBorder">@color/glass_border_light</item>
+        <item name="textFaded">@color/text_med_emphasis_light</item>
+
+        <item name="android:statusBarColor">@color/pearl_background</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+    </style>
+>>>>>>> 6995d49fbe696b0cdf88c348dd63198f6e235ed7
 </resources>

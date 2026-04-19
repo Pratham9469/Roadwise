@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+<<<<<<< HEAD
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
@@ -17,6 +18,16 @@
     <application
         android:allowBackup="true"
         android:enableOnBackInvokedCallback="true"
+=======
+<!--    <uses-permission android:name="android.permission.CAMERA" />-->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <application
+        android:allowBackup="true"
+>>>>>>> 6995d49fbe696b0cdf88c348dd63198f6e235ed7
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -24,15 +35,21 @@
         android:theme="@style/Theme.RoadWise">
 
         <activity
+<<<<<<< HEAD
             android:name=".SplashActivity"
             android:exported="true"
             android:theme="@style/Theme.RoadWise">
+=======
+            android:name=".MainActivity"
+            android:exported="true">
+>>>>>>> 6995d49fbe696b0cdf88c348dd63198f6e235ed7
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+<<<<<<< HEAD
         <activity
             android:name=".MainActivity"
             android:exported="true" />
@@ -48,6 +65,9 @@
             android:theme="@style/Theme.RoadWise" />
 
         <activity
+=======
+        <activity 
+>>>>>>> 6995d49fbe696b0cdf88c348dd63198f6e235ed7
             android:name=".HistoryActivity"
             android:label="History"
             android:theme="@style/Theme.RoadWise" />
@@ -66,6 +86,7 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+<<<<<<< HEAD
 
         <!-- Background Monitoring Service -->
         <service
@@ -83,6 +104,8 @@
                 <action android:name="com.roadwise.ACTION_ACTIVITY_TRANSITION" />
             </intent-filter>
         </receiver>
+=======
+>>>>>>> 6995d49fbe696b0cdf88c348dd63198f6e235ed7
     </application>
 
 </manifest>

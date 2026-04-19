@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 6995d49fbe696b0cdf88c348dd63198f6e235ed7
 @rem
 @rem Copyright 2015 the original author or authors.
 @rem
@@ -91,6 +94,7 @@ exit /b %EXIT_CODE%
 if "%OS%"=="Windows_NT" endlocal
 
 :omega
+<<<<<<< HEAD
 =======
 @rem
 @rem Copyright 2015 the original author or authors.
@@ -185,3 +189,5 @@ if "%OS%"=="Windows_NT" endlocal
 
 :omega
 >>>>>>> contributor-fork/main
+=======
+>>>>>>> 6995d49fbe696b0cdf88c348dd63198f6e235ed7

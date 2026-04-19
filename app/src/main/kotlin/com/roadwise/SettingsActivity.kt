@@ -11,11 +11,14 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import com.roadwise.databinding.ActivitySettingsBinding
 import com.roadwise.utils.PotholeRepository
+<<<<<<< HEAD
 import com.roadwise.services.DriveGuardService
 import android.app.ActivityManager
 import android.util.Log
 import com.google.android.gms.location.*
 import android.app.PendingIntent
+=======
+>>>>>>> 6995d49fbe696b0cdf88c348dd63198f6e235ed7
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 
 class SettingsActivity : AppCompatActivity() {
@@ -65,6 +68,7 @@ class SettingsActivity : AppCompatActivity() {
             prefs.edit().putBoolean("pref_background_detection", isChecked).apply()
         }
 
+<<<<<<< HEAD
         binding.switchBackgroundService.isChecked = isServiceRunning(DriveGuardService::class.java)
         binding.switchBackgroundService.setOnCheckedChangeListener { _, isChecked ->
             prefs.edit().putBoolean("pref_background_service", isChecked).apply()
@@ -86,6 +90,8 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
 
+=======
+>>>>>>> 6995d49fbe696b0cdf88c348dd63198f6e235ed7
         binding.sliderSensitivity.value = prefs.getFloat("pref_sensitivity_index", 1.0f)
         updateSensitivityLabel(prefs.getFloat("pref_sensitivity_index", 1.0f))
         binding.sliderSensitivity.addOnChangeListener { _, value, _ ->
@@ -108,11 +114,14 @@ class SettingsActivity : AppCompatActivity() {
             prefs.edit().putBoolean("pref_battery_saver", isChecked).apply()
         }
 
+<<<<<<< HEAD
         binding.switchVoiceAlerts.isChecked = prefs.getBoolean("pref_voice_alerts", true)
         binding.switchVoiceAlerts.setOnCheckedChangeListener { _, isChecked ->
             prefs.edit().putBoolean("pref_voice_alerts", isChecked).apply()
         }
 
+=======
+>>>>>>> 6995d49fbe696b0cdf88c348dd63198f6e235ed7
         // ─────────────────────────────────────────────
         // RESOURCE MANAGEMENT — Audio Alerts
         // ─────────────────────────────────────────────
@@ -202,6 +211,7 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
+<<<<<<< HEAD
     private fun isServiceRunning(serviceClass: Class<*>): Boolean {
         val manager = getSystemService(Context.ACTIVITY_SERVICE) as android.app.ActivityManager
         for (service in manager.getRunningServices(Int.MAX_VALUE)) {
@@ -253,6 +263,8 @@ class SettingsActivity : AppCompatActivity() {
         ActivityRecognition.getClient(this).removeActivityTransitionUpdates(pendingIntent)
     }
 
+=======
+>>>>>>> 6995d49fbe696b0cdf88c348dd63198f6e235ed7
     private fun setupNavigation() {
         binding.navDrive.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java).apply {

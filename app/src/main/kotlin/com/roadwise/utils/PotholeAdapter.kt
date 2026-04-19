@@ -61,6 +61,7 @@ class PotholeAdapter(
         holder.typeRing.backgroundTintList = ContextCompat.getColorStateList(ctx, typeColor)
         holder.pbIntensity.progressTintList = ContextCompat.getColorStateList(ctx, typeColor)
 
+<<<<<<< HEAD
         // Format coordinates
         val lat = String.format("%.4f", abs(pothole.location.latitude))
         val lon = String.format("%.4f", abs(pothole.location.longitude))
@@ -71,6 +72,11 @@ class PotholeAdapter(
         val sdf = SimpleDateFormat("MMM dd · HH:mm", Locale.getDefault())
         val intensityG = "%.1f G".format(pothole.intensity)
         holder.tvDateTime.text = "${sdf.format(Date(pothole.timestamp))}  ·  $intensityG"
+=======
+        // Intensity label showing exact G-force
+        val intensityG = "%.1f G".format(pothole.intensity)
+        holder.tvDateTime.text = "${holder.tvDateTime.text}  ·  $intensityG"
+>>>>>>> 6995d49fbe696b0cdf88c348dd63198f6e235ed7
 
         // Intensity bar — map g-force to a 0-100 scale (max ~10g)
         val intensityPercent = (abs(pothole.intensity) / 10f * 100).toInt().coerceIn(5, 100)

@@ -20,7 +20,11 @@ class DetectionManager(private val onVerifiedFeature: (RoadFeature, Severity, Fl
 
     fun onSensorDetection(type: RoadFeature, intensity: Float) {
         val currentTime = System.currentTimeMillis()
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> 6995d49fbe696b0cdf88c348dd63198f6e235ed7
         if (currentTime < lockoutUntil) {
             return
         }
@@ -35,7 +39,11 @@ class DetectionManager(private val onVerifiedFeature: (RoadFeature, Severity, Fl
         lockoutUntil = currentTime + LOCKOUT_DURATION_MS
 
         if (BuildConfig.DEBUG) Log.d("RoadWise", "Feature Detected: $type, Severity: $severity, Intensity: $intensity")
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> 6995d49fbe696b0cdf88c348dd63198f6e235ed7
         // 2. Trust the Sensor 100% as requested by the teacher
         onVerifiedFeature(type, severity, intensity)
     }

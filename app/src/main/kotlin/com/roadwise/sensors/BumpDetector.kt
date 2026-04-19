@@ -26,7 +26,11 @@ class BumpDetector(
         .getFloat("pref_sensor_threshold", 3.8f)
 
     // Window size should be a power of 2 for FFT efficiency
+<<<<<<< HEAD
     private val windowSize = 64
+=======
+    private val windowSize = 64 
+>>>>>>> 6995d49fbe696b0cdf88c348dd63198f6e235ed7
     private val zHistory = FloatArray(windowSize)
     private var historyIndex = 0
     private var samplesCount = 0
@@ -54,7 +58,11 @@ class BumpDetector(
     override fun onSensorChanged(event: SensorEvent?) {
         if (event?.sensor?.type == Sensor.TYPE_LINEAR_ACCELERATION) {
             val currentSpeed = getCurrentSpeedKmh()
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> 6995d49fbe696b0cdf88c348dd63198f6e235ed7
             if (currentSpeed < MIN_SPEED_KMH) {
                 samplesCount = 0
                 return
@@ -65,7 +73,11 @@ class BumpDetector(
             val z = event.values[2]
 
             // Horizontal Noise Filter
+<<<<<<< HEAD
             if (abs(x) > threshold * 1.5f || abs(y) > threshold * 1.5f) return
+=======
+            if (abs(x) > threshold * 1.5f || abs(y) > threshold * 1.5f) return 
+>>>>>>> 6995d49fbe696b0cdf88c348dd63198f6e235ed7
 
             zHistory[historyIndex] = z
             historyIndex = (historyIndex + 1) % windowSize
@@ -79,7 +91,11 @@ class BumpDetector(
 
     private fun analyzeWindow() {
         val currentTime = System.currentTimeMillis()
+<<<<<<< HEAD
         if (currentTime - lastEventTime < 2000) return
+=======
+        if (currentTime - lastEventTime < 2000) return 
+>>>>>>> 6995d49fbe696b0cdf88c348dd63198f6e235ed7
 
         var maxAbsZ = 0f
         val fftData = FloatArray(windowSize * 2) // Real and Imaginary parts

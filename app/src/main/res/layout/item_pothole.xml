@@ -78,7 +78,11 @@
                     android:textColor="?attr/colorSecondary"
                     android:textSize="16sp"
                     android:letterSpacing="0.01"
+<<<<<<< HEAD
                     android:fontFamily="sans-serif-medium" />
+=======
+                    android:textStyle="bold" />
+>>>>>>> 6995d49fbe696b0cdf88c348dd63198f6e235ed7
 
                 <ImageButton
                     android:id="@+id/btnDelete"
@@ -96,7 +100,10 @@
                 android:layout_marginTop="3dp"
                 android:text="28.6139° N, 77.2090° E"
                 android:textColor="?attr/textFaded"
+<<<<<<< HEAD
                 android:fontFamily="sans-serif-medium"
+=======
+>>>>>>> 6995d49fbe696b0cdf88c348dd63198f6e235ed7
                 android:textSize="13sp" />
 
             <TextView

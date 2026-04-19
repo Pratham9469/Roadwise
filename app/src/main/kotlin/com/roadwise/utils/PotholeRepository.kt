@@ -109,6 +109,7 @@ object PotholeRepository {
     fun deletePothole(context: Context, timestamp: Long) {
         val potholes = getAllPotholes(context).toMutableList()
         potholes.removeAll { it.timestamp == timestamp }
+<<<<<<< HEAD
         saveAllInternal(context, potholes)
     }
 
@@ -139,6 +140,10 @@ object PotholeRepository {
                 withContext(Dispatchers.Main) { onComplete() }
             }
         }
+=======
+        saveAll(context, potholes)
+        cached = potholes
+>>>>>>> 6995d49fbe696b0cdf88c348dd63198f6e235ed7
     }
 
     fun saveAllInternal(context: Context, potholes: List<PotholeData>) {
@@ -159,10 +164,17 @@ object PotholeRepository {
         return try {
             val json = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 .getString(KEY_POTHOLES, null) ?: return emptyList<PotholeData>().also { cached = it }
+<<<<<<< HEAD
 
             val parser = JsonParser.parseString(json)
             if (!parser.isJsonArray) return emptyList<PotholeData>().also { cached = it }
 
+=======
+            
+            val parser = JsonParser.parseString(json)
+            if (!parser.isJsonArray) return emptyList<PotholeData>().also { cached = it }
+            
+>>>>>>> 6995d49fbe696b0cdf88c348dd63198f6e235ed7
             val array = parser.asJsonArray
             val result = mutableListOf<PotholeData>()
             for (element in array) {
