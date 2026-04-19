@@ -735,31 +735,34 @@ window.exportData = () => {
 };
 
 window.recenterMap = () => {
-    // Try to get user's current location
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             (pos) => {
                 const lat = pos.coords.latitude;
                 const lon = pos.coords.longitude;
 
-                map.setView([lat, lon], 15);
+                map.setView([lat, lon], 16);
+
+                // optional marker for live location
+                L.marker([lat, lon])
+                    .addTo(map)
+                    .bindPopup("📍 You are here")
+                    .openPopup();
+
             },
-            () => {
-                // If permission denied → fallback
+            (err) => {
+                alert("Unable to access location. Please allow GPS permission.");
+                console.log(err);
                 map.setView([20.5937, 78.9629], 5);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
             }
         );
     } else {
-        // If browser doesn't support GPS
-        map.setView([20.5937, 78.9629], 5);
-    }
-};
-
-window.recenterMap = () => {
-    if (markers.length > 0) {
-        const group = new L.featureGroup(markers);
-        map.fitBounds(group.getBounds().pad(0.2));
-    } else {
+        alert("Geolocation not supported in this browser.");
         map.setView([20.5937, 78.9629], 5);
     }
 };
