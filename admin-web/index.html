@@ -280,6 +280,8 @@
             100% { transform: scale(1.5); opacity: 0; }
         }
 
+
+
         .leaflet-div-icon { background: transparent !important; border: none !important; }
         .leaflet-routing-container { display: none !important; }
     </style>
@@ -354,6 +356,7 @@
 
         <div id="safety-indicator" class="safety-card">
             <div style="font-size: 11px; font-weight: 800; opacity: 0.9;">SAFETY SCORE</div>
+            <div id="accident-tag" style="font-size:13px; font-weight:700; margin-top:6px;"></div>
             <div id="safety-score" style="font-size: 42px; font-weight: 900; margin: 2px 0;">--</div>
             <div id="safety-status" style="font-size: 14px; font-weight: 700; text-transform: uppercase;">Ready</div>
             <div id="hazard-breakdown" style="display:none; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.2); font-size: 11px; display: flex; justify-content: space-around;">
@@ -429,6 +432,8 @@ let routingControl = null;
 let severityChart = null;
 let typeChart = null;
 let filteredData = [];
+
+
 
 // --- Tab Controller ---
 window.switchTab = (tab) => {
@@ -516,28 +521,34 @@ function updateUI(dataList) {
     dataList.forEach((data) => {
         const color = data.severity === "HIGH" ? "#ef4444" : (data.severity === "MEDIUM" ? "#f59e0b" : "#10b981");
 
-        // Classic Pin Icon
+        // Classic Pin Icon replaced with specific hazard logos
         let iconUrl;
+        if ((data.type || "").toLowerCase().includes("speed")) {
+            iconUrl = "  https://static.vecteezy.com/system/resources/previews/021/506/339/large_2x/traffic-sign-regulatory-sign-free-png.png";
+        } else {
+            iconUrl = "   https://cdn-icons-png.flaticon.com/512/18215/18215529.png "; // Pothole Logo
+        }
 
-if ((data.type || "").toLowerCase().includes("speed")) {
-    iconUrl = "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"; // speedbump
-} else {
-    iconUrl = data.severity === "HIGH"
-        ? "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
-        : data.severity === "MEDIUM"
-        ? "https://maps.google.com/mapfiles/ms/icons/orange-dot.png"
-        : "https://maps.google.com/mapfiles/ms/icons/green-dot.png";
-}
+        // Original Pin URLs
+        const basePinUrl = data.severity === "HIGH" ? "https://maps.google.com/mapfiles/ms/icons/red-dot.png" :
+                           (data.severity === "MEDIUM" ? "https://maps.google.com/mapfiles/ms/icons/orange-dot.png" :
+                           "https://maps.google.com/mapfiles/ms/icons/green-dot.png");
 
         const divIcon = L.divIcon({
             className: 'custom-div-icon',
-            html: `<div class="pulse" style="background:${color}"></div><img src="${iconUrl}" style="width:32px; height:32px; position:absolute; left:-16px; top:-32px">`,
+            html: `
+                <div class="pulse" style="background:${color}"></div>
+                <!-- Original Location Marker -->
+                <img src="${basePinUrl}" style="width:32px; height:32px; position:absolute; left:-16px; top:-32px; z-index:1">
+                <!-- Hazard Logo (Larger & More Visible) -->
+                <img src="${iconUrl}" style="width:42px; height:42px; position:absolute; left:-21px; top:-70px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); z-index:2">
+            `,
             iconSize: [0, 0]
         });
 
         if (!isHeatmapActive) {
             const marker = L.marker([data.lat, data.lon], { icon: divIcon }).addTo(map);
-            marker.bindPopup(`<b>${data.type}</b><br>Severity: ${data.severity}<br>Intensity: ${data.intensity}g`);
+            marker.bindPopup(`<b>${data.type}</b><br>Severity: ${data.severity}<br>Intensity: ${parseFloat(data.intensity).toFixed(2)}g`);
             markers.push(marker);
         }
 
@@ -635,9 +646,32 @@ function analyzeSafety(route) {
     document.getElementById('path-med').innerText = mCount;
     document.getElementById('path-low').innerText = lCount;
 
-    if (score > 80) { ind.className = "safety-card safety-safe"; document.getElementById('safety-status').innerText = "Safe Path"; }
-    else if (score > 50) { ind.className = "safety-card safety-moderate"; document.getElementById('safety-status').innerText = "Caution Advised"; }
-    else { ind.className = "safety-card safety-danger"; document.getElementById('safety-status').innerText = "High Risk Road"; }
+    let statusText = "";
+let accidentTag = "";
+
+if (score > 80) {
+    ind.className = "safety-card safety-safe";
+    statusText = "Safe Path";
+    accidentTag = "✅ Safe Road";
+}
+else if (score > 50) {
+    ind.className = "safety-card safety-moderate";
+    statusText = "Moderate Risk";
+    accidentTag = "⚠️ Accident Possible";
+}
+else {
+    ind.className = "safety-card safety-danger";
+    statusText = "Danger";
+    accidentTag = "❌ Accident Prone Area";
+}
+
+document.getElementById('safety-status').innerText = statusText;
+
+// ✅ SHOW TEXT ON SCREEN (IMPORTANT)
+document.getElementById('accident-tag').innerText = accidentTag;
+
+// (optional tooltip - you can keep or remove)
+document.getElementById('safety-indicator').title = accidentTag;
 
     document.getElementById('route-stats').style.display = 'block';
     document.getElementById('path-hazard-count').innerText = pathHazards.length;
