@@ -6,12 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RoadWise | Civic Admin Dashboard</title>
 
-    <!-- Leaflet & Plugins -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
@@ -20,18 +18,27 @@
     <style>
         :root {
             --primary: #10b981;
+            --primary-soft: #ecfdf5;
             --danger: #ef4444;
+            --danger-soft: #fef2f2;
             --warning: #f59e0b;
+            --warning-soft: #fffbeb;
             --info: #3b82f6;
-            --dark: #1f2937;
-            --light: #f9fafb;
-            --sidebar-width: 480px;
-            /* Add transition for background and color changes */
-            transition: background-color 0.3s ease, color 0.3s ease;
+            --dark: #111827;
+            --light: #f8fafc;
+            /* ── FIX 1: Wider sidebar so filter fits on one line ── */
+            --sidebar-width: 590px;
+            --card-radius: 14px;
+            --border: #e8ecf0;
+            --text-muted: #6b7280;
+            --text-secondary: #9ca3af;
+            --sidebar-bg: #ffffff;
+            --card-bg: #ffffff;
+            --navbar-bg: #ffffff;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             margin: 0;
             background-color: var(--light);
             display: flex;
@@ -39,552 +46,716 @@
             height: 100vh;
             width: 100vw;
             overflow: hidden;
-            transition: background-color 0.3s, color 0.3s;
         }
 
-        /* Ensure all dark-mode elements transition smoothly */
-        .dark-mode,
-        .dark-mode * {
-            transition: background-color 0.3s ease, color 0.3s ease;
+        /* ── DARK MODE ── */
+        .dark-mode {
+            --light: #0f172a;
+            --dark: #f1f5f9;
+            --border: #1e293b;
+            --sidebar-bg: #111827;
+            --card-bg: #1e293b;
+            --navbar-bg: #111827;
+            --text-muted: #94a3b8;
+            --text-secondary: #64748b;
+            --primary-soft: #064e3b;
+            --danger-soft: #450a0a;
+            --warning-soft: #451a03;
         }
 
+        .dark-mode .sidebar,
+        .dark-mode .top-navbar { background: var(--navbar-bg); border-color: var(--border); }
+        .dark-mode .stat-card-new,
+        .dark-mode .detection-item,
+        .dark-mode .filter-strip,
+        .dark-mode .analytics-card,
+        .dark-mode .routing-panel { background: var(--card-bg); border-color: var(--border); }
+        .dark-mode .filter-select { background: var(--card-bg); border-color: var(--border); color: var(--dark); }
+        .dark-mode .sidebar-title,
+        .dark-mode .detection-name { color: var(--dark); }
+        .dark-mode #global-search { background: var(--card-bg); border-color: var(--border); color: var(--dark); }
+        .dark-mode #global-search-results { background: var(--card-bg); border-color: var(--border); }
+        .dark-mode .search-result-item:hover { background: #0f172a; }
+        .dark-mode .tab-new.active { background: var(--primary-soft); }
+        .dark-mode .recenter-btn { background: var(--card-bg); border-color: var(--border); color: var(--dark); }
+        .dark-mode .profile-dropdown-item:hover { background: #0f172a; }
+        .dark-mode #profile-dropdown { background: var(--card-bg) !important; border-color: var(--border) !important; }
+        .dark-mode .input-group input { background: var(--card-bg); border-color: var(--border); color: var(--dark); }
+        .dark-mode .filter-date-input { background: var(--card-bg); border-color: var(--border); color: var(--dark); }
+
+        /* ── TOP NAVBAR ── */
         .top-navbar {
             width: 100%;
-            height: 64px;
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
+            height: 60px;
+            background: var(--navbar-bg);
+            border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 24px;
+            padding: 0 20px;
             box-sizing: border-box;
             z-index: 2000;
-            position: relative;
         }
 
         .main-body {
             display: flex;
             flex: 1;
             width: 100%;
-            height: calc(100vh - 64px);
+            height: calc(100vh - 60px);
             overflow: hidden;
         }
 
-        .dark-mode {
-            --light: #111827;
-            --dark: #f9fafb;
-            --border: #374151;
-            background-color: var(--light);
-            color: var(--dark);
-        }
-
-        .dark-mode .sidebar,
-        .dark-mode .top-navbar,
-        .dark-mode .analytics-card,
-        .dark-mode .stat-card,
-        .dark-mode .filter-box {
-            background-color: #1f2937;
-            border-color: #374151;
-            color: #f9fafb;
-        }
-
-        .dark-mode .pothole-item {
-            border-color: #374151;
-        }
-
-        .dark-mode .pothole-item:hover,
-        .dark-mode .tab.active,
-        .dark-mode .routing-panel {
-            background-color: #374151;
-            border-color: #4b5563;
-        }
-
-        .dark-mode label,
-        .dark-mode .stat-label,
-        .dark-mode .filter-title {
-            color: #9ca3af;
-        }
-
-        .dark-mode .input-group input,
-        .dark-mode .filter-box select,
-        .dark-mode .filter-box input,
-        .dark-mode #global-search {
-            background-color: #111827;
-            border-color: #4b5563;
-            color: white;
-        }
-
-        .dark-mode .tabs {
-            border-color: #374151;
-        }
-
-        .dark-mode #global-search-results {
-            background-color: #1f2937;
-            color: white;
-            border: 1px solid #374151;
-        }
-
-        .dark-mode #recenter-btn {
-            background-color: #1f2937;
-            border-color: #4b5563;
-            color: white;
-        }
-
-        .dark-mode #recenter-btn:hover {
-            background-color: #374151;
-        }
-
-        .profile-dropdown-item:hover {
-            background: #fef2f2;
-        }
-
-        .dark-mode #profile-dropdown {
-            background: #1f2937 !important;
-            border-color: #374151 !important;
-            color: white;
-        }
-
-        .dark-mode .profile-dropdown-item:hover {
-            background: #374151 !important;
-        }
-
-        .dark-mode .mode-label {
-            color: #f9fafb !important;
-        }
-
-        .switch-toggle {
-            position: relative;
-            display: inline-block;
-            width: 40px;
-            height: 22px;
-            margin: 0;
-        }
-
-        .switch-toggle input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .switch-toggle .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .3s;
-        }
-
-        .switch-toggle .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .3s;
-        }
-
-        .switch-toggle input:checked+.slider {
-            background-color: var(--primary);
-        }
-
-        .switch-toggle input:checked+.slider:before {
-            transform: translateX(18px);
-        }
-
-        .switch-toggle .slider.round {
-            border-radius: 22px;
-        }
-
-        .switch-toggle .slider.round:before {
-            border-radius: 50%;
-        }
-
-        .search-result-item {
-            padding: 12px 16px;
-            cursor: pointer;
-            border-bottom: 1px solid #e5e7eb;
-            font-size: 13px;
-        }
-
-        .dark-mode .search-result-item {
-            border-color: #374151;
-        }
-
-        .search-result-item:hover {
-            background: #f3f4f6;
-        }
-
-        .dark-mode .search-result-item:hover {
-            background: #374151;
-        }
-
+        /* ── SIDEBAR ── */
         .sidebar {
             width: var(--sidebar-width);
-            background: white;
-            border-right: 1px solid #e5e7eb;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            padding: 24px;
-            overflow-y: auto;
+            overflow: hidden;
             position: relative;
             z-index: 1000;
         }
 
+        .sidebar-header {
+            padding: 20px 20px 0;
+            flex-shrink: 0;
+        }
+
+        .sidebar-scrollable {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 20px 20px;
+        }
+
+        .sidebar-scrollable::-webkit-scrollbar { width: 4px; }
+        .sidebar-scrollable::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-scrollable::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
         #map {
             flex: 1;
-            height: 100vh;
+            height: 100%;
             background: #e5e7eb;
         }
 
-        .tabs {
-            display: flex;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #f3f4f6;
+        /* ── STAT CARDS ── */
+        .stats-grid-new {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
         }
 
-        .tab {
+        .stat-card-new {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--card-radius);
+            padding: 14px 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card-new .card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card-new .trend-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 7px;
+            border-radius: 99px;
+            /* ── FIX 2: Allow badge to wrap text gracefully ── */
+            max-width: 80px;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .trend-up { background: #fef2f2; color: #ef4444; }
+        .trend-down { background: #ecfdf5; color: #10b981; }
+        .trend-stable { background: #ecfdf5; color: #10b981; }
+        .trend-neutral { background: #f0f9ff; color: #3b82f6; }
+
+        .stat-card-new .card-label {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .stat-card-new .card-value {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--dark);
+            line-height: 1.1;
+        }
+
+        /* ── TABS ── */
+        .tabs-new {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+            background: var(--light);
+            border-radius: 10px;
+            padding: 4px;
+        }
+
+        .dark-mode .tabs-new { background: #0f172a; }
+
+        .tab-new {
             flex: 1;
             text-align: center;
-            padding: 12px 5px;
+            padding: 8px 6px;
             cursor: pointer;
             font-weight: 600;
-            color: #6b7280;
-            border-bottom: 2px solid transparent;
-            font-size: 13px;
+            color: var(--text-muted);
+            border-radius: 8px;
+            font-size: 12px;
             transition: all 0.2s;
         }
 
-        .tab.active {
+        .tab-new.active {
             color: var(--primary);
-            border-bottom: 2px solid var(--primary);
-            background: #f0fdf4;
+            background: white;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
         }
 
-        .routing-panel {
-            background: #f9fafb;
-            padding: 16px;
+        .dark-mode .tab-new.active {
+            background: var(--card-bg);
+        }
+
+        /* ── FILTER STRIP — single row, properly sized ── */
+        .filter-strip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--card-radius);
+            padding: 12px 16px;
+            margin-bottom: 14px;
+            flex-wrap: nowrap;
+        }
+
+        .filter-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .filter-select {
+            padding: 8px 10px;
+            border: 1.5px solid var(--border);
+            border-radius: 9px;
+            font-size: 13px;
+            font-family: inherit;
+            font-weight: 500;
+            color: var(--dark);
+            background: var(--light);
+            cursor: pointer;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            flex: 1;
+            min-width: 0;
+            max-width: 100px;
+            transition: border-color 0.2s;
+        }
+
+        .filter-select:focus { border-color: var(--primary); }
+
+        .filter-date-input {
+            padding: 8px 10px;
+            border: 1.5px solid var(--border);
+            border-radius: 9px;
+            font-size: 13px;
+            font-family: inherit;
+            color: var(--dark);
+            background: var(--light);
+            outline: none;
+            flex: 1.4;
+            min-width: 0;
+            transition: border-color 0.2s;
+        }
+
+        .filter-date-input:focus { border-color: var(--primary); }
+
+        .filter-reset-btn {
+            padding: 8px 14px;
+            background: transparent;
+            border: 1.5px solid var(--border);
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .filter-reset-btn:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-soft); }
+
+        /* ── DETECTIONS SECTION HEADER ── */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .section-count {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        /* ── DETECTION ITEMS ── */
+        .detection-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--card-radius);
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .detection-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .detection-thumb {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            object-fit: cover;
+            flex-shrink: 0;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            overflow: hidden;
+        }
+
+        .detection-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .detection-body { flex: 1; min-width: 0; }
+
+        .detection-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .detection-meta {
+            font-size: 11px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .detection-meta span { display: flex; align-items: center; gap: 3px; }
+
+        .sev-pill {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 99px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            flex-shrink: 0;
+        }
+
+        .sev-high { background: #fef2f2; color: #ef4444; }
+        .sev-medium { background: #fffbeb; color: #d97706; }
+        .sev-low { background: #ecfdf5; color: #059669; }
+        .sev-critical { background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; }
+
+        /* ── REPAIR STATUS BADGES ── */
+        .status-select {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 99px;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .status-select.status-pending  { background: #fef9c3; color: #854d0e; }
+        .status-select.status-progress { background: #dbeafe; color: #1e40af; }
+        .status-select.status-fixed    { background: #dcfce7; color: #166534; }
+        .status-select:hover { filter: brightness(0.93); }
+
+        .detection-item.is-fixed { opacity: 0.55; border-style: dashed; }
+
+        /* ── STATUS SUMMARY BAR ── */
+        .status-summary-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .status-summary-chip {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 6px;
             border-radius: 12px;
-            margin-bottom: 20px;
-            border: 1px solid #e5e7eb;
+            border: 1.5px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .status-summary-chip:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .status-summary-chip.active-chip { border-color: currentColor; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .status-summary-chip .chip-count { font-size: 22px; font-weight: 800; line-height: 1; }
+        .status-summary-chip .chip-label { font-size: 10px; font-weight: 600; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.4px; opacity: 0.85; }
+        .chip-pending  { color: #854d0e; background: #fef9c3; }
+        .chip-progress { color: #1e40af; background: #dbeafe; }
+        .chip-fixed    { color: #166634; background: #dcfce7; }
+
+        /* ── LOAD MORE ── */
+        .load-more-btn {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: var(--card-radius);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
 
-        .input-group {
-            margin-bottom: 12px;
+        .load-more-btn:hover { background: var(--primary-soft); color: var(--primary); border-color: var(--primary); }
+
+        /* ── ROUTING PANEL ── */
+        .routing-panel {
+            background: var(--card-bg);
+            padding: 16px;
+            border-radius: var(--card-radius);
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
         }
+
+        .input-group { margin-bottom: 10px; }
 
         .input-group label {
             display: block;
             font-size: 10px;
-            font-weight: 800;
-            color: #374151;
-            margin-bottom: 6px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 5px;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .input-group input {
             width: 100%;
             padding: 10px 12px;
-            border: 1.5px solid #e5e7eb;
-            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            border-radius: 9px;
             box-sizing: border-box;
             font-family: inherit;
+            font-size: 13px;
+            background: var(--light);
+            color: var(--dark);
+            outline: none;
+            transition: border-color 0.2s;
         }
 
-        .analytics-card {
-            background: white;
-            padding: 16px;
-            border-radius: 12px;
-            border: 1px solid #e5e7eb;
-            margin-bottom: 20px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        }
+        .input-group input:focus { border-color: var(--primary); }
 
+        /* ── SAFETY CARD ── */
         .safety-card {
             padding: 20px;
             border-radius: 16px;
             color: white;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             text-align: center;
             display: none;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
         }
 
-        .safety-safe {
-            background: var(--primary);
+        .safety-safe { background: linear-gradient(135deg, #059669, #10b981); }
+        .safety-moderate { background: linear-gradient(135deg, #d97706, #f59e0b); }
+        .safety-danger { background: linear-gradient(135deg, #dc2626, #ef4444); }
+
+        /* ── ANALYTICS ── */
+        .analytics-card {
+            background: var(--card-bg);
+            padding: 16px;
+            border-radius: var(--card-radius);
+            border: 1px solid var(--border);
+            margin-bottom: 12px;
         }
 
-        .safety-moderate {
-            background: var(--warning);
-        }
+        .chart-container { height: 200px; width: 100%; position: relative; }
 
-        .safety-danger {
-            background: var(--danger);
-        }
-
-        .stat-grid {
+        /* ── ROUTE STATS ── */
+        .route-stat-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 14px;
         }
 
-        .stat-card {
-            background: white;
+        .route-stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--card-radius);
             padding: 14px;
-            border-radius: 12px;
-            border: 1px solid #e5e7eb;
         }
 
-        .stat-label {
-            font-size: 10px;
-            font-weight: 700;
-            color: #6b7280;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-        }
-
-        .stat-value {
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--dark);
-        }
-
-        .pothole-list {
-            margin-top: 12px;
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        .pothole-item {
-            padding: 14px;
-            border-bottom: 1px solid #f3f4f6;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .pothole-item:hover {
-            background: #f0fdf4;
-        }
-
-        .severity-badge {
-            font-size: 9px;
-            font-weight: 800;
-            padding: 3px 10px;
-            border-radius: 99px;
-            text-transform: uppercase;
-        }
-
-        .sev-high {
-            background: #fee2e2;
-            color: #ef4444;
-        }
-
-        .sev-medium {
-            background: #fef3c7;
-            color: #d97706;
-        }
-
-        .sev-low {
-            background: #dcfce7;
-            color: #10b981;
-        }
-
+        /* ── ROUTE BTN ── */
         #route-btn {
-            background: var(--primary);
+            background: linear-gradient(135deg, #059669, #10b981);
             color: white;
             border: none;
-            padding: 14px;
+            padding: 13px;
             border-radius: 10px;
             font-weight: 700;
             cursor: pointer;
             width: 100%;
+            font-family: inherit;
+            font-size: 13px;
+            letter-spacing: 0.3px;
+            transition: opacity 0.2s;
         }
 
-        #recenter-btn {
+        #route-btn:hover { opacity: 0.9; }
+
+        /* ── EXPORT BTN ── */
+        .export-btn {
+            width: 100%;
+            padding: 11px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 13px;
+            transition: opacity 0.2s;
+        }
+
+        .export-btn:hover { opacity: 0.9; }
+
+        /* ── NAVBAR ELEMENTS ── */
+        .recenter-btn {
             background: white;
             color: #374151;
-            border: 1px solid #e5e7eb;
-            padding: 8px 12px;
+            border: 1px solid var(--border);
+            padding: 7px 12px;
             border-radius: 8px;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 12px;
             cursor: pointer;
+            font-family: inherit;
             transition: all 0.2s;
         }
 
-        #recenter-btn:hover {
-            background: #f9fafb;
-        }
+        .recenter-btn:hover { background: #f9fafb; }
 
-        /* FILTER BOX */
-        .filter-box {
-            background: white;
-            padding: 14px;
-            border-radius: 12px;
-            border: 1px solid #e5e7eb;
-            margin-bottom: 12px;
-        }
-
-        .filter-title {
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
             font-size: 11px;
-            font-weight: 800;
-            color: #374151;
-            margin-bottom: 8px;
+            font-weight: 600;
+            color: #059669;
         }
 
-        /* UPDATED CSS */
-        .filter-box select,
-        .filter-box input {
+        .live-dot {
+            width: 7px;
+            height: 7px;
+            background: #059669;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #059669;
+            animation: livePulse 1.5s infinite;
+        }
+
+        @keyframes livePulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.3); }
+        }
+
+        /* ── SEARCH ── */
+        #global-search {
             width: 100%;
-            padding: 10px 12px;
-            margin-bottom: 8px;
-            border: 1.5px solid #e5e7eb;
-            border-radius: 8px;
+            padding: 9px 16px;
+            border-radius: 99px;
+            border: 1px solid var(--border);
+            background: var(--light);
+            outline: none;
             font-family: inherit;
             font-size: 13px;
-            background: #f9fafb;
-            box-sizing: border-box;
-            display: block;
-            appearance: none;
-            /* Removes default OS arrow */
-            -webkit-appearance: none;
-            -moz-appearance: none;
+            color: var(--dark);
         }
 
-        /* Specific styling for Select to add a custom, consistent arrow */
-        .filter-box select {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23374151'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            /* Matches the horizontal padding */
-            background-size: 16px;
-            padding-right: 40px;
-            /* Space for the arrow */
-        }
-
-        /* Specific styling for Date to align icon with the Select arrow */
-        .filter-box input[type="date"]::-webkit-calendar-picker-indicator {
-            cursor: pointer;
-            margin: 0;
-            padding: 0;
-            /* This forces the calendar icon to stay at the right edge */
-        }
-
-        .filter-box select:focus,
-        .filter-box input:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: white;
-        }
-
-        .filter-box button {
-            width: 100%;
-            padding: 10px;
-            background: var(--danger);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .filter-box {
-            overflow: hidden;
-        }
-
-        .chart-container {
-            height: 220px;
-            width: 100%;
-            position: relative;
-        }
-
-        .pulse {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+        #global-search-results {
             position: absolute;
-            left: -20px;
-            top: -20px;
-            pointer-events: none;
-            animation: pulse-animation 2s infinite;
-            z-index: -1;
-        }
-
-        @keyframes pulse-animation {
-            0% {
-                transform: scale(0.1);
-                opacity: 0.8;
-            }
-
-            70% {
-                transform: scale(1.5);
-                opacity: 0;
-            }
-
-            100% {
-                transform: scale(1.5);
-                opacity: 0;
-            }
-        }
-
-
-
-        /* LOADER UI */
-        #loader-overlay {
-            position: fixed;
-            top: 0;
+            top: 44px;
             left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(255, 255, 255, 0.7);
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-height: 250px;
+            overflow-y: auto;
             display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            backdrop-filter: blur(4px);
+            z-index: 2000;
+        }
+
+        .search-result-item {
+            padding: 11px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .search-result-item:hover { background: #f3f4f6; }
+
+        /* ── TOGGLE SWITCH ── */
+        .switch-toggle { position: relative; display: inline-block; width: 38px; height: 21px; }
+        .switch-toggle input { opacity: 0; width: 0; height: 0; }
+        .switch-toggle .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #d1d5db; transition: .3s; border-radius: 21px; }
+        .switch-toggle .slider:before { position: absolute; content: ""; height: 15px; width: 15px; left: 3px; bottom: 3px; background: white; transition: .3s; border-radius: 50%; }
+        .switch-toggle input:checked + .slider { background: var(--primary); }
+        .switch-toggle input:checked + .slider:before { transform: translateX(17px); }
+
+        /* ── LOADER ── */
+        #loader-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(255,255,255,0.7);
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 9999; backdrop-filter: blur(4px);
         }
 
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f4f6;
-            border-top: 5px solid var(--primary);
+            width: 44px; height: 44px;
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid var(--primary);
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spin 0.9s linear infinite;
         }
 
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .loader-text {
-            margin-top: 15px;
+            margin-top: 12px; font-weight: 700; color: var(--dark);
+            font-size: 13px; text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        /* ── MAP MARKER ── */
+        .leaflet-div-icon { background: transparent !important; border: none !important; }
+        .leaflet-routing-container { display: none !important; }
+
+        .pulse {
+            width: 40px; height: 40px; border-radius: 50%;
+            position: absolute; left: -20px; top: -20px;
+            pointer-events: none; animation: pulseRing 2s infinite; z-index: -1;
+        }
+
+        @keyframes pulseRing {
+            0% { transform: scale(0.1); opacity: 0.8; }
+            70% { transform: scale(1.5); opacity: 0; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+
+        /* ── PROFILE DROPDOWN ── */
+        .profile-dropdown-item:hover { background: #fef2f2; }
+
+        /* ── MAP LAYER TOGGLE ── */
+        .map-layer-toggle {
+            display: flex;
+            align-items: center;
+            background: var(--light);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            padding: 3px;
+            gap: 3px;
+        }
+        .map-layer-btn {
+            padding: 5px 11px;
+            border: none;
+            border-radius: 7px;
+            font-size: 11px;
             font-weight: 700;
-            color: var(--dark);
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: transparent;
+            color: var(--text-muted);
+            white-space: nowrap;
         }
-
-        .leaflet-div-icon {
-            background: transparent !important;
-            border: none !important;
+        .map-layer-btn.active {
+            background: var(--dark);
+            color: #fff;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.18);
         }
+        .dark-mode .map-layer-btn.active { background: var(--primary); color: #fff; }
+        .dark-mode .map-layer-toggle { background: var(--card-bg); border-color: var(--border); }
 
-        .leaflet-routing-container {
-            display: none !important;
+        .sidebar-footer {
+            padding: 12px 20px;
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
         }
     </style>
 </head>
@@ -596,116 +767,144 @@
         <div id="loader-message" class="loader-text">Processing Data...</div>
     </div>
 
+    <!-- ── TOP NAV ── -->
     <nav class="top-navbar">
         <div style="display:flex; align-items:center; gap:10px;">
-            <div
-                style="width:32px; height:32px; background:var(--primary); border-radius:8px; display:flex; align-items:center; justify-content:center; color:white; font-weight:900">
-                RW</div>
-            <h1 style="font-size: 20px; margin: 0; color: inherit;">RoadWise</h1>
+            <div style="width:32px; height:32px; background:var(--primary); border-radius:9px; display:flex; align-items:center; justify-content:center; color:white; font-weight:900; font-size:13px;">RW</div>
+            <span style="font-size: 17px; font-weight: 700; color: var(--dark);">RoadWise</span>
         </div>
 
-        <div style="flex: 1; max-width: 400px; display: flex; align-items: center; margin: 0 40px; position:relative;">
-            <input type="text" id="global-search" placeholder="Search a city or location..."
-                style="width:100%; padding: 10px 16px; border-radius: 99px; border: 1px solid #e5e7eb; background: #f9fafb; outline:none; font-family:inherit;">
-            <div id="global-search-results"
-                style="position:absolute; top: 44px; left:0; width:100%; background:white; border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.1); max-height: 250px; overflow-y:auto; display:none; z-index: 2000;">
-            </div>
+        <div style="flex:1; max-width:380px; display:flex; align-items:center; margin:0 32px; position:relative;">
+            <input type="text" id="global-search" placeholder="Search a city or location...">
+            <div id="global-search-results"></div>
         </div>
 
-        <div style="display:flex; align-items:center; gap: 24px;">
-            <div style="display:flex; align-items:center; gap: 6px; font-size:12px; font-weight:600; color:#06b17b;">
-                <div
-                    style="width:8px; height:8px; background:#059669; border-radius:50%; box-shadow: 0 0 10px #059669; animation: pulse-animation 1.5s infinite;">
-                </div>
-                Live Sync Active
+        <div style="display:flex; align-items:center; gap:18px;">
+            <div class="live-badge">
+                <div class="live-dot"></div>
+                Live Sync
             </div>
-            <button id="recenter-btn" onclick="recenterMap()">📍 Recenter</button>
-            <div style="display:flex; align-items:center; gap: 8px;">
-                <span class="mode-label" style="font-size: 13px; font-weight: 600; color: #374151;">🔥 Heatmap</span>
+            <button class="recenter-btn" onclick="recenterMap()">📍 Recenter</button>
+            <div style="display:flex; align-items:center; gap:7px;">
+                <span style="font-size:12px; font-weight:600; color:var(--text-muted);">🔥 Heatmap</span>
                 <label class="switch-toggle">
                     <input type="checkbox" id="heatmap-toggle-checkbox" onchange="toggleHeatmap()">
-                    <span class="slider round"></span>
+                    <span class="slider"></span>
                 </label>
             </div>
-            <button id="dark-mode-toggle" onclick="toggleDarkMode()"
-                style="background:transparent; border:none; cursor:pointer; font-size:18px;">🌙</button>
-            <div style="position: relative; cursor: pointer;" onclick="toggleProfileDropdown(event)">
-                <div style="display:flex; align-items:center; gap: 8px;">
-                    <div style="width:32px; height:32px; border-radius:50%; background:#e5e7eb; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#6b7280; text-transform: uppercase;"
-                        id="user-avatar">?</div>
-                    <span id="user-email"
-                        style="display: none; font-size: 13px; font-weight: 600; color: #6b7280;">Loading...</span>
+            <!-- ── MAP LAYER TOGGLE ── -->
+            <div class="map-layer-toggle">
+                <button class="map-layer-btn active" id="btn-street" onclick="setMapLayer('street')">🗺️ Street</button>
+                <button class="map-layer-btn" id="btn-satellite" onclick="setMapLayer('satellite')">🛰️ Satellite</button>
+            </div>
+            <button onclick="toggleDarkMode()" id="dark-mode-toggle" style="background:transparent; border:none; cursor:pointer; font-size:17px;">🌙</button>
+            <div style="position:relative; cursor:pointer;" onclick="toggleProfileDropdown(event)">
+                <div style="display:flex; align-items:center; gap:7px;">
+                    <div style="width:32px; height:32px; border-radius:50%; background:#e5e7eb; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#6b7280; text-transform:uppercase;" id="user-avatar">?</div>
                 </div>
-                <div id="profile-dropdown"
-                    style="display:none; position: absolute; top: calc(100% + 10px); right: 0; background: white; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 150px; z-index: 3000;">
-                    <div onclick="logOut()" class="profile-dropdown-item"
-                        style="padding: 12px; color: #ef4444; font-weight: 600; font-size: 13px; cursor: pointer; text-align: center; border-radius: 8px;">
-                        Log Out
-                    </div>
+                <div id="profile-dropdown" style="display:none; position:absolute; top:calc(100% + 8px); right:0; background:white; border:1px solid var(--border); border-radius:10px; box-shadow:0 4px 16px rgba(0,0,0,0.1); width:140px; z-index:3000;">
+                    <div onclick="logOut()" class="profile-dropdown-item" style="padding:12px; color:#ef4444; font-weight:600; font-size:13px; cursor:pointer; text-align:center; border-radius:10px;">Log Out</div>
                 </div>
             </div>
         </div>
     </nav>
-    <div class="main-body">
-        <div class="sidebar" id="sidebar">
-            <p style="color: #6b7280; font-size: 14px; margin-bottom: 20px; margin-top: 0;">Civic Maintenance Dashboard
-            </p>
 
-            <div class="tabs">
-                <div id="tab-overview" class="tab active" onclick="switchTab('overview')">Detections</div>
-                <div id="tab-route" class="tab" onclick="switchTab('route')">Safe Route</div>
-                <div id="tab-analytics" class="tab" onclick="switchTab('analytics')">Analytics</div>
+    <div class="main-body">
+        <!-- ── SIDEBAR ── -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <p style="color:var(--text-muted); font-size:12px; font-weight:500; margin:0 0 14px 0; text-transform:uppercase; letter-spacing:0.5px;">Civic Maintenance Dashboard</p>
+
+                <!-- Tabs -->
+                <div class="tabs-new">
+                    <div id="tab-overview" class="tab-new active" onclick="switchTab('overview')">Detections</div>
+                    <div id="tab-route" class="tab-new" onclick="switchTab('route')">Safe Route</div>
+                    <div id="tab-analytics" class="tab-new" onclick="switchTab('analytics')">Analytics</div>
+                </div>
             </div>
 
-            <!-- Tab 1: Overview -->
-            <div id="overview-content">
-                <div class="stat-grid">
-                    <div class="stat-card">
-                        <div class="stat-label">Total</div>
-                        <div id="total-count" class="stat-value">0</div>
+            <!-- ── TAB 1: OVERVIEW ── -->
+            <div id="overview-content" class="sidebar-scrollable">
+
+                <!-- Stats Cards -->
+                <div class="stats-grid-new">
+                    <div class="stat-card-new">
+                        <div class="card-icon" style="background:#fef2f2; font-size:16px;">🔢</div>
+                        <span class="trend-badge trend-neutral" id="total-trend">Loading…</span>
+                        <div class="card-label">Total Detections</div>
+                        <div class="card-value" id="total-count">0</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Critical</div>
-                        <div id="high-count" class="stat-value" style="color:var(--danger)">0</div>
+                    <div class="stat-card-new">
+                        <div class="card-icon" style="background:#fef2f2; font-size:16px;">⚠️</div>
+                        <span class="trend-badge trend-neutral" id="critical-trend">Loading…</span>
+                        <div class="card-label">Critical Issues</div>
+                        <div class="card-value" id="high-count" style="color:var(--danger)">0</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Medium</div>
-                        <div id="medium-count" class="stat-value" style="color:var(--warning)">0</div>
+                    <div class="stat-card-new">
+                        <div class="card-icon" style="background:#fffbeb; font-size:16px;">🔧</div>
+                        <span class="trend-badge trend-neutral" id="medium-trend">Loading…</span>
+                        <div class="card-label">Medium Severity</div>
+                        <div class="card-value" id="medium-count" style="color:var(--warning)">0</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Avg Quality</div>
-                        <div id="avg-intensity" class="stat-value">0.0</div>
+                    <div class="stat-card-new">
+                        <div class="card-icon" style="background:#ecfdf5; font-size:16px;">✅</div>
+                        <span class="trend-badge trend-stable">Stable</span>
+                        <div class="card-label">Avg Data Quality</div>
+                        <div class="card-value" id="avg-intensity" style="color:var(--primary)">0.0</div>
                     </div>
                 </div>
-                <!-- 🔍 FILTERS -->
-                <div class="filter-box">
 
-                    <div class="filter-title">FILTERS</div>
-
-                    <select id="filter-severity" onchange="applyFilters()">
-                        <option value="">All Severity</option>
+                <!-- ── FILTER STRIP (single row, no wrap) ── -->
+                <div class="filter-strip">
+                    <span class="filter-label">Sev.</span>
+                    <select class="filter-select" id="filter-severity" onchange="applyFilters()">
+                        <option value="">All</option>
                         <option value="HIGH">High</option>
                         <option value="MEDIUM">Medium</option>
                         <option value="LOW">Low</option>
                     </select>
-
-                    <select id="filter-type" onchange="applyFilters()">
-                        <option value="">All Types</option>
+                    <span class="filter-label">Type</span>
+                    <select class="filter-select" id="filter-type" onchange="applyFilters()">
+                        <option value="">All</option>
                         <option value="pothole">Pothole</option>
                         <option value="speed">Speedbump</option>
                     </select>
-
-                    <input type="date" id="filter-date" onchange="applyFilters()">
-
-                    <button onclick="resetFilters()">Reset Filters</button>
-
+                    <span class="filter-label">Date</span>
+                    <input type="date" class="filter-date-input" id="filter-date" onchange="applyFilters()">
+                    <button class="filter-reset-btn" onclick="resetFilters()">Reset</button>
                 </div>
 
-                <div class="pothole-list" id="pothole-list"></div>
+                <!-- ── REPAIR STATUS SUMMARY BAR ── -->
+                <div class="status-summary-bar">
+                    <button class="status-summary-chip chip-pending" id="chip-pending" onclick="filterByStatus('pending')">
+                        <span class="chip-count" id="count-pending">0</span>
+                        <span class="chip-label">⏳ Pending</span>
+                    </button>
+                    <button class="status-summary-chip chip-progress" id="chip-progress" onclick="filterByStatus('in_progress')">
+                        <span class="chip-count" id="count-progress">0</span>
+                        <span class="chip-label">🔧 In Progress</span>
+                    </button>
+                    <button class="status-summary-chip chip-fixed" id="chip-fixed" onclick="filterByStatus('fixed')">
+                        <span class="chip-count" id="count-fixed">0</span>
+                        <span class="chip-label">✅ Fixed</span>
+                    </button>
+                </div>
+
+                <!-- Detection List -->
+                <div class="section-header">
+                    <span class="section-title">Recent Detections</span>
+                    <span class="section-count" id="showing-count">Showing 0 entries</span>
+                </div>
+
+                <div id="pothole-list"></div>
+
+                <button class="load-more-btn" id="load-more-btn" onclick="loadMore()" style="display:none;">
+                    Load More Detections ▾
+                </button>
             </div>
 
-            <!-- Tab 2: Safe Route -->
-            <div id="route-content" style="display:none;">
+            <!-- ── TAB 2: ROUTE ── -->
+            <div id="route-content" class="sidebar-scrollable" style="display:none;">
                 <div class="routing-panel">
                     <div class="input-group">
                         <label>Start Location</label>
@@ -718,61 +917,54 @@
                         <datalist id="dest-list"></datalist>
                     </div>
                     <button id="route-btn">🚀 Calculate Safest Path</button>
-                    <div id="status-log" style="font-size: 11px; text-align: center; margin-top: 8px; color: #6b7280;">
-                        Awaiting Input</div>
+                    <div id="status-log" style="font-size:11px; text-align:center; margin-top:8px; color:var(--text-muted);">Awaiting Input</div>
                 </div>
 
                 <div id="safety-indicator" class="safety-card">
-                    <div style="font-size: 11px; font-weight: 800; opacity: 0.9;">SAFETY SCORE</div>
-                    <div id="accident-tag" style="font-size:13px; font-weight:700; margin-top:6px;"></div>
-                    <div id="safety-score" style="font-size: 42px; font-weight: 900; margin: 2px 0;">--</div>
-                    <div id="safety-status" style="font-size: 14px; font-weight: 700; text-transform: uppercase;">Ready
-                    </div>
-                    <div id="hazard-breakdown"
-                        style="display:none; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.2); font-size: 11px; display: flex; justify-content: space-around;">
+                    <div style="font-size:10px; font-weight:800; opacity:0.85; text-transform:uppercase; letter-spacing:1px;">Safety Score</div>
+                    <div id="accident-tag" style="font-size:12px; font-weight:700; margin-top:5px; opacity:0.9;"></div>
+                    <div id="safety-score" style="font-size:46px; font-weight:900; margin:4px 0; letter-spacing:-2px;">--</div>
+                    <div id="safety-status" style="font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Ready</div>
+                    <div id="hazard-breakdown" style="display:none; margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.25); font-size:11px; display:flex; justify-content:space-around;">
                         <div><b id="path-high">0</b> High</div>
                         <div><b id="path-med">0</b> Med</div>
                         <div><b id="path-low">0</b> Low</div>
                     </div>
                 </div>
 
-                <div id="route-stats" style="display:none; margin-bottom: 10px;">
-                    <div class="stat-grid">
-                        <div class="stat-card">
-                            <div class="stat-label">Hazards on Path</div>
-                            <div id="path-hazard-count" class="stat-value" style="color: #ef4444;">0</div>
+                <div id="route-stats" style="display:none;">
+                    <div class="route-stat-grid">
+                        <div class="route-stat-card">
+                            <div class="card-label">Hazards on Path</div>
+                            <div id="path-hazard-count" class="card-value" style="color:var(--danger)">0</div>
                         </div>
-                        <div class="stat-card">
-                            <div class="stat-label">Trip Distance</div>
-                            <div id="path-distance" class="stat-value">0 km</div>
+                        <div class="route-stat-card">
+                            <div class="card-label">Trip Distance</div>
+                            <div id="path-distance" class="card-value">0 km</div>
                         </div>
                     </div>
                 </div>
 
                 <div id="path-potholes" style="display:none;">
-                    <p style="font-size: 11px; font-weight: 800; color: #ef4444; margin: 10px 0 5px 0;">HAZARDS ON THIS
-                        ROUTE:</p>
-                    <div id="route-pothole-list" class="pothole-list"
-                        style="max-height: 300px; border: 1px solid #e5e7eb; border-radius: 8px;"></div>
+                    <p style="font-size:11px; font-weight:800; color:var(--danger); margin:8px 0 6px 0; text-transform:uppercase; letter-spacing:0.5px;">Hazards on This Route:</p>
+                    <div id="route-pothole-list" style="max-height:260px; overflow-y:auto;"></div>
                 </div>
             </div>
 
-            <!-- Tab 3: Analytics -->
-            <div id="analytics-content" style="display:none;">
+            <!-- ── TAB 3: ANALYTICS ── -->
+            <div id="analytics-content" class="sidebar-scrollable" style="display:none;">
                 <div class="analytics-card">
-                    <div class="stat-label">Hazard Distribution</div>
+                    <div style="font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:12px; text-transform:uppercase; letter-spacing:0.5px;">Hazard Distribution</div>
                     <div class="chart-container"><canvas id="severityChart"></canvas></div>
                 </div>
                 <div class="analytics-card">
-                    <div class="stat-label">Road Type Breakdown</div>
+                    <div style="font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:12px; text-transform:uppercase; letter-spacing:0.5px;">Road Type Breakdown</div>
                     <div class="chart-container"><canvas id="typeChart"></canvas></div>
                 </div>
             </div>
 
-            <div style="margin-top:auto; display: flex; flex-direction: column; gap: 8px;">
-                <button id="export-btn" onclick="exportData()"
-                    style="color:white; padding:10px; border:none; border-radius:8px; cursor:pointer; background-color: #10b981; font-weight: bold;">Export
-                    CSV Data</button>
+            <div class="sidebar-footer">
+                <button class="export-btn" onclick="exportData()">Export CSV Data</button>
             </div>
         </div>
 
@@ -780,9 +972,9 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js");
+        const { getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+        const { getAuth, onAuthStateChanged, signOut } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js");
 
         const firebaseConfig = {
             apiKey: "AIzaSyCLqpE2lSlor9X55Cfold-5ozfDp25Sm3s",
@@ -798,38 +990,27 @@
         const auth = getAuth(app);
         const L = window.L;
 
-        // Dashboard Auth Protection & User Profile Fetching
         onAuthStateChanged(auth, (user) => {
             if (!user) {
                 window.location.href = "login.html";
             } else {
-                document.getElementById('user-email').innerText = user.email;
-                document.getElementById('user-avatar').innerText = user.email.charAt(0);
+                document.getElementById('user-avatar').innerText = user.email.charAt(0).toUpperCase();
             }
         });
 
-        // Dark Mode Functionality
         window.toggleDarkMode = () => {
-            // Toggle dark mode on the root html element for broader effect
             document.documentElement.classList.toggle('dark-mode');
             const isDark = document.documentElement.classList.contains('dark-mode');
-            const toggleBtn = document.getElementById('dark-mode-toggle');
-            toggleBtn.innerText = isDark ? '☀️' : '🌙';
-            // Add rotation animation
-            toggleBtn.classList.add('rotate');
-            setTimeout(() => toggleBtn.classList.remove('rotate'), 500);
+            document.getElementById('dark-mode-toggle').innerText = isDark ? '☀️' : '🌙';
         };
 
-        // Global Search Functionality
+        // Global Search
         const globalSearch = document.getElementById('global-search');
         const globalResults = document.getElementById('global-search-results');
 
         globalSearch.addEventListener('input', async (e) => {
             const val = e.target.value;
-            if (val.length < 3) {
-                globalResults.style.display = 'none';
-                return;
-            }
+            if (val.length < 3) { globalResults.style.display = 'none'; return; }
             try {
                 const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(val)}&limit=5`);
                 const data = await res.json();
@@ -841,98 +1022,90 @@
                         div.className = 'search-result-item';
                         div.innerText = `${f.properties.name || ""} ${f.properties.city || ""} ${f.properties.country || ""}`.trim();
                         div.onclick = () => {
-                            const lat = f.geometry.coordinates[1];
-                            const lon = f.geometry.coordinates[0];
-                            map.flyTo([lat, lon], 15);
+                            map.flyTo([f.geometry.coordinates[1], f.geometry.coordinates[0]], 15);
                             globalSearch.value = div.innerText;
                             globalResults.style.display = 'none';
                         };
                         globalResults.appendChild(div);
                     });
-                } else {
-                    globalResults.style.display = 'none';
-                }
-            } catch (e) { }
+                } else { globalResults.style.display = 'none'; }
+            } catch (e) {}
         });
 
-        // Hide search results and dropdown on document click
         document.addEventListener('click', (e) => {
-            if (e.target !== globalSearch) {
-                globalResults.style.display = 'none';
-            }
+            if (e.target !== globalSearch) globalResults.style.display = 'none';
             const dp = document.getElementById('profile-dropdown');
-            if (dp && e.target.closest('#profile-dropdown') === null && e.target.closest('[onclick="toggleProfileDropdown(event)"]') === null) {
-                dp.style.display = 'none';
-            }
+            if (dp && !e.target.closest('#profile-dropdown') && !e.target.closest('[onclick="toggleProfileDropdown(event)"]')) dp.style.display = 'none';
         });
 
         window.toggleProfileDropdown = (event) => {
             const dp = document.getElementById('profile-dropdown');
-            if (dp) {
-                dp.style.display = (dp.style.display === 'none' || dp.style.display === '') ? 'block' : 'none';
-            }
+            dp.style.display = (dp.style.display === 'none' || !dp.style.display) ? 'block' : 'none';
             event.stopPropagation();
         };
 
-        window.logOut = async () => {
-            try {
-                await signOut(auth);
-            } catch (e) {
-                console.error("Logout Error:", e);
-            }
-        };
+        window.logOut = async () => { try { await signOut(auth); } catch (e) {} };
 
-        // Map Setup
+        // Map
         const map = L.map('map', { zoomControl: false }).setView([20.5937, 78.9629], 5);
         L.control.zoom({ position: 'topright' }).addTo(map);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
+        // ── Tile layers ──
+        const tileLayers = {
+            street: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }),
+            satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: '© Esri — Esri, Earthstar Geographics',
+                maxZoom: 19
+            })
+        };
 
-        // Global Variables
-        let allData = [];
-        let markers = [];
-        let heatmapLayer = null;
-        let isHeatmapActive = false;
-        let isRouteActive = false;
-        let routingControl = null;
-        let severityChart = null;
-        let typeChart = null;
-        let filteredData = [];
-        let userMarker = null;
+        let currentLayer = 'street';
+        tileLayers.street.addTo(map);
 
-        // --- Loader Helpers ---
-        function showLoader(msg = "Processing Data...") {
+        window.setMapLayer = (type) => {
+            if (type === currentLayer) return;
+            map.removeLayer(tileLayers[currentLayer]);
+            tileLayers[type].addTo(map);
+            currentLayer = type;
+            // Update button states
+            document.getElementById('btn-street').classList.toggle('active', type === 'street');
+            document.getElementById('btn-satellite').classList.toggle('active', type === 'satellite');
+        };
+
+        let allData = [], markers = [], heatmapLayer = null, isHeatmapActive = false;
+        let isRouteActive = false, routingControl = null, severityChart = null, typeChart = null;
+        let filteredData = [], userMarker = null;
+
+        // Pagination
+        let displayedCount = 10;
+        const PAGE_SIZE = 10;
+
+        // Repair status filter
+        let activeStatusFilter = '';
+
+        // ── FIX 2: Track previous snapshot counts for real trend badges ──
+        let prevTotal = 0, prevHigh = 0, prevMedium = 0;
+        let isFirstLoad = true;
+
+        function showLoader(msg = "Processing...") {
             document.getElementById('loader-overlay').style.display = 'flex';
             document.getElementById('loader-message').innerText = msg;
         }
+        function hideLoader() { document.getElementById('loader-overlay').style.display = 'none'; }
 
-        function hideLoader() {
-            document.getElementById('loader-overlay').style.display = 'none';
-        }
-
-        // --- Tab Controller ---
         window.switchTab = (tab) => {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-new').forEach(t => t.classList.remove('active'));
             document.getElementById(`tab-${tab}`).classList.add('active');
+            document.getElementById('overview-content').style.display = tab === 'overview' ? 'flex' : 'none';
+            document.getElementById('route-content').style.display = tab === 'route' ? 'flex' : 'none';
+            document.getElementById('analytics-content').style.display = tab === 'analytics' ? 'flex' : 'none';
 
-            document.getElementById('overview-content').style.display = tab === 'overview' ? 'block' : 'none';
-            document.getElementById('route-content').style.display = tab === 'route' ? 'block' : 'none';
-            document.getElementById('analytics-content').style.display = tab === 'analytics' ? 'block' : 'none';
-
-            if (tab === 'analytics') {
-                showLoader("Loading Charts...");
-                setTimeout(() => {
-                    initCharts();
-                    if (isRouteActive) {
-                        updateCharts();
-                    } else {
-                        updateCharts(allData);
-                    }
-                    hideLoader();
-                }, 400);
-            }
-
-            if (tab === 'overview') {
+            if (tab === 'overview') document.getElementById('overview-content').style.flexDirection = 'column';
+            if (tab === 'route') {
+                document.getElementById('route-content').style.flexDirection = 'column';
                 isRouteActive = false;
                 if (routingControl) { map.removeControl(routingControl); routingControl = null; }
                 document.getElementById('safety-indicator').style.display = 'none';
@@ -940,40 +1113,179 @@
                 document.getElementById('path-potholes').style.display = 'none';
                 updateUI(allData);
             }
-
+            if (tab === 'analytics') {
+                document.getElementById('analytics-content').style.flexDirection = 'column';
+                showLoader("Loading Charts...");
+                setTimeout(() => { initCharts(); updateCharts(allData); hideLoader(); }, 400);
+            }
             setTimeout(() => map.invalidateSize(), 300);
         };
 
-
-
-        // --- Heatmap ---
         window.toggleHeatmap = () => {
-            const checkbox = document.getElementById('heatmap-toggle-checkbox');
-            isHeatmapActive = checkbox.checked;
+            isHeatmapActive = document.getElementById('heatmap-toggle-checkbox').checked;
             if (isHeatmapActive) {
                 markers.forEach(m => map.removeLayer(m));
-                const points = allData.map(d => [d.lat, d.lon, 0.6]);
-                heatmapLayer = L.heatLayer(points, { radius: 30, blur: 15 }).addTo(map);
+                heatmapLayer = L.heatLayer(allData.map(d => [d.lat, d.lon, 0.6]), { radius: 30, blur: 15 }).addTo(map);
             } else {
                 if (heatmapLayer) map.removeLayer(heatmapLayer);
                 updateUI(allData);
             }
         };
 
-        // --- Firebase Sync ---
-        const q = query(collection(db, "potholes"), orderBy("timestamp", "desc"));
-        onSnapshot(q, (snapshot) => {
-            allData = [];
-            snapshot.forEach(doc => allData.push({ id: doc.id, ...doc.data() }));
-            if (!isRouteActive) {
-                applyFilters(); // always apply filters after new data
+        const thumbMap = {
+            'speed': 'https://static.vecteezy.com/system/resources/previews/021/506/339/large_2x/traffic-sign-regulatory-sign-free-png.png',
+            'pothole': 'https://cdn-icons-png.flaticon.com/512/18215/18215529.png'
+        };
+
+        function getThumbEmoji(type) {
+            const t = (type || '').toLowerCase();
+            if (t.includes('speed')) return '🛑';
+            if (t.includes('pothole')) return '🕳️';
+            if (t.includes('sign')) return '🪧';
+            return '🚧';
+        }
+
+        function getSevClass(sev) {
+            if (sev === 'HIGH') return 'sev-critical';
+            if (sev === 'MEDIUM') return 'sev-medium';
+            return 'sev-low';
+        }
+
+        function getSevLabel(sev) {
+            if (sev === 'HIGH') return 'Critical';
+            if (sev === 'MEDIUM') return 'Medium Severity';
+            return 'Low Severity';
+        }
+
+        function formatDate(ts) {
+            const d = new Date(ts);
+            return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + ', ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        window.loadMore = () => {
+            displayedCount += PAGE_SIZE;
+            renderDetectionList(filteredData.length > 0 || hasActiveFilters() ? filteredData : allData);
+        };
+
+        function hasActiveFilters() {
+            return document.getElementById('filter-severity').value ||
+                   document.getElementById('filter-type').value ||
+                   document.getElementById('filter-date').value ||
+                   activeStatusFilter;
+        }
+
+        // ── Repair status helpers ──
+        function getStatusClass(status) {
+            if (status === 'in_progress') return 'status-progress';
+            if (status === 'fixed') return 'status-fixed';
+            return 'status-pending';
+        }
+
+        function getStatusLabel(status) {
+            if (status === 'in_progress') return '🔧 In Progress';
+            if (status === 'fixed') return '✅ Fixed';
+            return '⏳ Pending';
+        }
+
+        // Update status in Firestore
+        window.updateRepairStatus = async (docId, newStatus, selectEl) => {
+            // Update select appearance immediately (optimistic)
+            selectEl.className = 'status-select ' + getStatusClass(newStatus);
+            try {
+                await updateDoc(doc(db, 'potholes', docId), { repairStatus: newStatus });
+            } catch (e) {
+                console.error('Status update failed', e);
             }
-            if (severityChart && !isRouteActive) updateCharts(allData);
-        });
+        };
+
+        // Filter detections by status chip click
+        window.filterByStatus = (status) => {
+            if (activeStatusFilter === status) {
+                activeStatusFilter = ''; // toggle off
+            } else {
+                activeStatusFilter = status;
+            }
+            // Update chip active states
+            ['pending', 'progress', 'fixed'].forEach(s => {
+                const mapKey = s === 'pending' ? 'pending' : s === 'progress' ? 'in_progress' : 'fixed';
+                const chip = document.getElementById('chip-' + s);
+                if (activeStatusFilter === mapKey) chip.classList.add('active-chip');
+                else chip.classList.remove('active-chip');
+            });
+            displayedCount = PAGE_SIZE;
+            applyFilters();
+        };
+
+        // Update the 3 status count chips
+        function updateStatusCounts(dataList) {
+            const pending    = dataList.filter(d => !d.repairStatus || d.repairStatus === 'pending').length;
+            const inProgress = dataList.filter(d => d.repairStatus === 'in_progress').length;
+            const fixed      = dataList.filter(d => d.repairStatus === 'fixed').length;
+            document.getElementById('count-pending').innerText  = pending;
+            document.getElementById('count-progress').innerText = inProgress;
+            document.getElementById('count-fixed').innerText    = fixed;
+        }
+
+        function renderDetectionList(dataList) {
+            const listEl = document.getElementById('pothole-list');
+            listEl.innerHTML = '';
+            document.getElementById('showing-count').innerText = `Showing ${Math.min(displayedCount, dataList.length)} entries`;
+
+            // Update status chips counts based on full (pre-status-filter) allData
+            updateStatusCounts(allData);
+
+            const shown = dataList.slice(0, displayedCount);
+
+            shown.forEach((data) => {
+                const item = document.createElement('div');
+                const repairStatus = data.repairStatus || 'pending';
+                item.className = 'detection-item' + (repairStatus === 'fixed' ? ' is-fixed' : '');
+
+                const t = (data.type || '').toLowerCase();
+                const thumbEmoji = getThumbEmoji(data.type);
+                const thumbSrc = t.includes('speed') ? thumbMap.speed : thumbMap.pothole;
+                const statusClass = getStatusClass(repairStatus);
+
+                item.innerHTML = `
+                    <div class="detection-thumb">
+                        <img src="${thumbSrc}" alt="" onerror="this.parentElement.innerHTML='${thumbEmoji}'" />
+                    </div>
+                    <div class="detection-body">
+                        <div class="detection-name">${data.type || 'Unknown'}</div>
+                        <div class="detection-meta">
+                            <span>📍 ${parseFloat(data.lat).toFixed(4)}° N, ${parseFloat(data.lon).toFixed(4)}° W</span>
+                        </div>
+                        <div class="detection-meta" style="margin-top:2px;">
+                            <span>🕐 ${formatDate(data.timestamp)}</span>
+                        </div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; flex-shrink:0;">
+                        <span class="sev-pill ${getSevClass(data.severity)}">${getSevLabel(data.severity)}</span>
+                        <select
+                            class="status-select ${statusClass}"
+                            onchange="updateRepairStatus('${data.id}', this.value, this)"
+                            onclick="event.stopPropagation()"
+                        >
+                            <option value="pending"     ${repairStatus === 'pending'     ? 'selected' : ''}>⏳ Pending</option>
+                            <option value="in_progress" ${repairStatus === 'in_progress' ? 'selected' : ''}>🔧 In Progress</option>
+                            <option value="fixed"       ${repairStatus === 'fixed'       ? 'selected' : ''}>✅ Fixed</option>
+                        </select>
+                    </div>
+                `;
+
+                item.onclick = () => {
+                    map.flyTo([data.lat, data.lon], 17);
+                    const m = markers.find(mark => mark.getLatLng().lat === data.lat);
+                    if (m) m.openPopup();
+                };
+                listEl.appendChild(item);
+            });
+
+            const loadMoreBtn = document.getElementById('load-more-btn');
+            loadMoreBtn.style.display = dataList.length > displayedCount ? 'flex' : 'none';
+        }
 
         function updateUI(dataList) {
-            const listEl = document.getElementById('pothole-list');
-            listEl.innerHTML = "";
             markers.forEach(m => map.removeLayer(m));
             markers = [];
 
@@ -983,15 +1295,13 @@
             dataList.forEach((data) => {
                 const color = data.severity === "HIGH" ? "#ef4444" : (data.severity === "MEDIUM" ? "#f59e0b" : "#10b981");
 
-                // Classic Pin Icon replaced with specific hazard logos
                 let iconUrl;
                 if ((data.type || "").toLowerCase().includes("speed")) {
-                    iconUrl = "  https://static.vecteezy.com/system/resources/previews/021/506/339/large_2x/traffic-sign-regulatory-sign-free-png.png";
+                    iconUrl = "https://static.vecteezy.com/system/resources/previews/021/506/339/large_2x/traffic-sign-regulatory-sign-free-png.png";
                 } else {
-                    iconUrl = "   https://cdn-icons-png.flaticon.com/512/18215/18215529.png "; // Pothole Logo
+                    iconUrl = "https://cdn-icons-png.flaticon.com/512/18215/18215529.png";
                 }
 
-                // Original Pin URLs
                 const basePinUrl = data.severity === "HIGH" ? "https://maps.google.com/mapfiles/ms/icons/red-dot.png" :
                     (data.severity === "MEDIUM" ? "https://maps.google.com/mapfiles/ms/icons/orange-dot.png" :
                         "https://maps.google.com/mapfiles/ms/icons/green-dot.png");
@@ -999,66 +1309,46 @@
                 const divIcon = L.divIcon({
                     className: 'custom-div-icon',
                     html: `
-                <div class="pulse" style="background:${color}"></div>
-                <!-- Original Location Marker -->
-                <img src="${basePinUrl}" style="width:32px; height:32px; position:absolute; left:-16px; top:-32px; z-index:1">
-                <!-- Hazard Logo (Larger & More Visible) -->
-                <img src="${iconUrl}" style="width:42px; height:42px; position:absolute; left:-21px; top:-70px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); z-index:2">
-            `,
+                        <div class="pulse" style="background:${color}"></div>
+                        <img src="${basePinUrl}" style="width:32px; height:32px; position:absolute; left:-16px; top:-32px; z-index:1">
+                        <img src="${iconUrl}" style="width:42px; height:42px; position:absolute; left:-21px; top:-70px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); z-index:2">
+                    `,
                     iconSize: [0, 0]
                 });
 
                 if (!isHeatmapActive) {
                     const marker = L.marker([data.lat, data.lon], { icon: divIcon }).addTo(map);
-                    marker.bindPopup(`<b>${data.type}</b><br>Severity: ${data.severity}<br>Intensity: ${parseFloat(data.intensity).toFixed(2)}g`);
+                    const statusLabel = getStatusLabel(data.repairStatus || 'pending');
+                    marker.bindPopup(`<b>${data.type}</b><br>Severity: ${data.severity}<br>Intensity: ${parseFloat(data.intensity).toFixed(2)}g<br>Status: ${statusLabel}`);
                     markers.push(marker);
                 }
 
                 counts[data.severity]++;
                 sumIntensity += parseFloat(data.intensity || 0);
-
-                const item = document.createElement('div');
-                item.className = 'pothole-item';
-                item.innerHTML = `
-    <div style="display:flex; justify-content:space-between">
-        <span class="severity-badge sev-${data.severity.toLowerCase()}">${data.severity}</span>
-        <small>${new Date(data.timestamp).toLocaleDateString()}</small>
-    </div>
-
-    <div style="font-weight:700; margin-top:4px">${data.type}</div>
-
-    <div style="font-size:11px; color:#6b7280; margin-top:4px">
-        📍 Lat: ${parseFloat(data.lat).toFixed(5)}, Lon: ${parseFloat(data.lon).toFixed(5)}
-    </div>
-`;
-                item.onclick = () => {
-                    map.flyTo([data.lat, data.lon], 17);
-                    const m = markers.find(mark => mark.getLatLng().lat === data.lat);
-                    if (m) m.openPopup();
-                };
-                listEl.appendChild(item);
             });
 
             document.getElementById('total-count').innerText = dataList.length;
             document.getElementById('high-count').innerText = counts.HIGH;
             document.getElementById('medium-count').innerText = counts.MEDIUM;
-            document.getElementById('avg-intensity').innerText = dataList.length ? (sumIntensity / dataList.length).toFixed(1) : "0.0";
+            document.getElementById('avg-intensity').innerText = dataList.length ? (sumIntensity / dataList.length).toFixed(1) + '%' : '0.0%';
+
+            renderDetectionList(dataList);
         }
 
-        // --- Autocomplete ---
+        // Autocomplete
         async function searchLocation(queryStr, listId) {
             if (queryStr.length < 3) return;
             try {
                 const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(queryStr)}&limit=5`);
                 const data = await res.json();
                 const list = document.getElementById(listId);
-                list.innerHTML = "";
+                list.innerHTML = '';
                 data.features.forEach(f => {
                     const opt = document.createElement('option');
                     opt.value = `${f.properties.name || ""} ${f.properties.city || ""} ${f.properties.country || ""}`.trim();
                     list.appendChild(opt);
                 });
-            } catch (e) { }
+            } catch (e) {}
         }
 
         document.getElementById('origin-input').oninput = e => searchLocation(e.target.value, 'origin-list');
@@ -1067,25 +1357,16 @@
         async function getCoords(str) {
             const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(str)}&limit=1`);
             const data = await res.json();
-
             if (!data.features.length) return null;
-
             const lat = data.features[0].geometry.coordinates[1];
             const lon = data.features[0].geometry.coordinates[0];
-
-            // SNAP TO ROAD using OSRM nearest service
             try {
                 const snapRes = await fetch(`https://router.project-osrm.org/nearest/v1/driving/${lon},${lat}`);
                 const snapData = await snapRes.json();
-
                 if (snapData.waypoints && snapData.waypoints.length > 0) {
-                    return L.latLng(
-                        snapData.waypoints[0].location[1],
-                        snapData.waypoints[0].location[0]
-                    );
+                    return L.latLng(snapData.waypoints[0].location[1], snapData.waypoints[0].location[0]);
                 }
-            } catch (e) { }
-
+            } catch (e) {}
             return L.latLng(lat, lon);
         }
 
@@ -1093,128 +1374,73 @@
             const log = document.getElementById('status-log');
             const startVal = document.getElementById('origin-input').value;
             const endVal = document.getElementById('dest-input').value;
-
             if (!startVal || !endVal) { alert("Please enter both locations"); return; }
-
             showLoader("🔍 Calculating safest path...");
-
             try {
                 const start = await getCoords(startVal);
                 const end = await getCoords(endVal);
-
-                if (!start || !end) {
-                    hideLoader();
-                    alert("One of the locations could not be found. Please try a more specific address or city name.");
-                    return;
-                }
-
+                if (!start || !end) { hideLoader(); alert("Location not found. Please try a more specific name."); return; }
                 log.innerText = "🔄 Finding best road route...";
-
-                // Remove existing routing control if it exists
-                if (routingControl) {
-                    map.removeControl(routingControl);
-                    routingControl = null;
-                }
-
-                // Initialize routing with explicit OSRM V1 Router
+                if (routingControl) { map.removeControl(routingControl); routingControl = null; }
                 routingControl = L.Routing.control({
-                    router: L.Routing.osrmv1({
-                        serviceUrl: 'https://router.project-osrm.org/route/v1',
-                        timeout: 30 * 1000   // 👈 ADD THIS LINE HERE
-                    }),
+                    router: L.Routing.osrmv1({ serviceUrl: 'https://router.project-osrm.org/route/v1', timeout: 30000 }),
                     waypoints: [start, end],
-                    lineOptions: {
-                        styles: [{ color: '#10b981', weight: 8, opacity: 0.9 }],
-                        extendToWaypoints: true,
-                        missingRouteTolerance: 100
-                    },
-                    createMarker: (i, wp) => {
-                        return L.marker(wp.latLng, {
-                            draggable: false,
-                            zIndexOffset: 2000
-                        }).bindPopup(i === 0 ? "<b>Start Point</b>" : "<b>Destination</b>");
-                    },
-                    addWaypoints: false,
-                    routeWhileDragging: false,
-                    fitSelectedRoutes: true,
-                    show: false // Hide the instruction box
-                }).on('routesfound', (e) => {
-                    log.innerText = "✅ Path analyzed successfully";
-                    analyzeSafety(e.routes[0]);
-                    hideLoader();
-                }).on('routingerror', (err) => {
-                    console.error("Routing Error:", err);
-                    hideLoader();
-                    log.innerText = "❌ Route search failed";
-                    alert("No drivable road found between these two points. Please ensure both locations are reachable by car.");
-                }).addTo(map);
-
-            } catch (error) {
-                console.error("General Routing Error:", error);
-                hideLoader();
-                alert("System error while calculating route. Please try again.");
-            }
+                    lineOptions: { styles: [{ color: '#10b981', weight: 8, opacity: 0.9 }], extendToWaypoints: true, missingRouteTolerance: 100 },
+                    createMarker: (i, wp) => L.marker(wp.latLng, { draggable: false, zIndexOffset: 2000 }).bindPopup(i === 0 ? "<b>Start</b>" : "<b>Destination</b>"),
+                    addWaypoints: false, routeWhileDragging: false, fitSelectedRoutes: true, show: false
+                }).on('routesfound', (e) => { log.innerText = "✅ Path analyzed"; analyzeSafety(e.routes[0]); hideLoader(); })
+                  .on('routingerror', () => { hideLoader(); log.innerText = "❌ Route failed"; alert("No drivable road found. Please try again."); })
+                  .addTo(map);
+            } catch (error) { hideLoader(); alert("System error. Please try again."); }
         };
 
         window.recenterMap = () => {
-            if (!isRouteActive) {
-                applyFilters();
-            }
             showLoader("📍 Getting your location...");
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (pos) => {
-                        const lat = pos.coords.latitude;
-                        const lon = pos.coords.longitude;
+                        const lat = pos.coords.latitude, lon = pos.coords.longitude;
                         map.setView([lat, lon], 16);
-                        if (userMarker) {
-                            userMarker.setLatLng([lat, lon]);
-                        } else {
-                            userMarker = L.marker([lat, lon]).addTo(map);
-                        }
-
+                        if (userMarker) userMarker.setLatLng([lat, lon]);
+                        else userMarker = L.marker([lat, lon]).addTo(map);
                         userMarker.bindPopup("📍 You are here").openPopup();
                         hideLoader();
                     },
-                    (err) => {
-                        hideLoader();
-                        alert("GPS permission denied.");
-                        map.setView([20.5937, 78.9629], 5);
-                    }
+                    () => { hideLoader(); alert("GPS permission denied."); map.setView([20.5937, 78.9629], 5); }
                 );
-            } else {
-                hideLoader();
-                map.setView([20.5937, 78.9629], 5);
-            }
+            } else { hideLoader(); map.setView([20.5937, 78.9629], 5); }
         };
 
         window.applyFilters = () => {
+            displayedCount = PAGE_SIZE;
             const severity = document.getElementById('filter-severity').value;
             const type = document.getElementById('filter-type').value;
             const date = document.getElementById('filter-date').value;
-
             filteredData = allData.filter(d => {
                 let match = true;
-
                 if (severity && d.severity !== severity) match = false;
                 if (type && !(d.type || "").toLowerCase().includes(type)) match = false;
-
-                if (date) {
-                    const dDate = new Date(d.timestamp).toISOString().split('T')[0];
-                    if (dDate !== date) match = false;
+                if (date && new Date(d.timestamp).toISOString().split('T')[0] !== date) match = false;
+                if (activeStatusFilter) {
+                    const ds = d.repairStatus || 'pending';
+                    if (ds !== activeStatusFilter) match = false;
                 }
-
                 return match;
             });
-
             updateUI(filteredData);
         };
 
         window.resetFilters = () => {
-            showLoader("🔄 Resetting data...");
+            showLoader("🔄 Resetting...");
             document.getElementById('filter-severity').value = "";
             document.getElementById('filter-type').value = "";
             document.getElementById('filter-date').value = "";
+            activeStatusFilter = '';
+            ['pending', 'progress', 'fixed'].forEach(s => {
+                document.getElementById('chip-' + s).classList.remove('active-chip');
+            });
+            displayedCount = PAGE_SIZE;
+            filteredData = [];
             updateUI(allData);
             if (window.updateCharts) updateCharts(allData);
             setTimeout(hideLoader, 300);
@@ -1222,33 +1448,24 @@
 
         window.initCharts = () => {
             if (severityChart) return;
-
             const sevCtx = document.getElementById('severityChart').getContext('2d');
             severityChart = new Chart(sevCtx, {
                 type: 'doughnut',
-                data: {
-                    labels: ['High', 'Medium', 'Low'],
-                    datasets: [{ data: [0, 0, 0], backgroundColor: ['#ef4444', '#f59e0b', '#10b981'] }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+                data: { labels: ['High', 'Medium', 'Low'], datasets: [{ data: [0, 0, 0], backgroundColor: ['#ef4444', '#f59e0b', '#10b981'], borderWidth: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } }, cutout: '65%' }
             });
 
             const barLabelsPlugin = {
                 id: 'barLabels',
-                afterDatasetsDraw(chart, args, options) {
+                afterDatasetsDraw(chart) {
                     const { ctx } = chart;
                     chart.data.datasets.forEach((dataset, i) => {
-                        const meta = chart.getDatasetMeta(i);
-                        meta.data.forEach((bar, index) => {
+                        chart.getDatasetMeta(i).data.forEach((bar, index) => {
                             const data = dataset.data[index];
                             if (data > 0) {
-                                ctx.save();
-                                ctx.fillStyle = '#1f2937';
-                                ctx.font = 'bold 12px Inter';
-                                ctx.textAlign = 'center';
-                                ctx.textBaseline = 'bottom';
-                                ctx.fillText(data, bar.x, bar.y - 5);
-                                ctx.restore();
+                                ctx.save(); ctx.fillStyle = '#1f2937'; ctx.font = 'bold 12px DM Sans';
+                                ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+                                ctx.fillText(data, bar.x, bar.y - 5); ctx.restore();
                             }
                         });
                     });
@@ -1258,40 +1475,26 @@
             const typeCtx = document.getElementById('typeChart').getContext('2d');
             typeChart = new Chart(typeCtx, {
                 type: 'bar',
-                data: {
-                    labels: ['Pothole', 'Speedbump'],
-                    datasets: [{ label: 'Count', data: [0, 0], backgroundColor: ['#ef4444', '#3b82f6'] }]
-                },
-                options: {
-                    layout: { padding: { top: 20 } },
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true } },
-                    plugins: { legend: { display: false } }
-                },
+                data: { labels: ['Pothole', 'Speedbump'], datasets: [{ label: 'Count', data: [0, 0], backgroundColor: ['#ef4444', '#3b82f6'], borderRadius: 6, borderWidth: 0 }] },
+                options: { layout: { padding: { top: 20 } }, responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } },
                 plugins: [barLabelsPlugin]
             });
         };
 
-        window.updateCharts = (dataList = filteredData.length > 0 || (document.getElementById('filter-severity').value || document.getElementById('filter-type').value || document.getElementById('filter-date').value) ? filteredData : allData) => {
+        window.updateCharts = (dataList) => {
+            if (!dataList) dataList = hasActiveFilters() ? filteredData : allData;
             if (!severityChart || !typeChart) return;
-
-            let h = 0, m = 0, l = 0;
-            let potholes = 0, speedbumps = 0;
-
+            let h = 0, m = 0, l = 0, potholes = 0, speedbumps = 0;
             dataList.forEach(d => {
                 if (d.severity === 'HIGH') h++;
                 else if (d.severity === 'MEDIUM') m++;
                 else l++;
-
                 if ((d.type || "").toLowerCase().includes("speed")) speedbumps++;
                 else potholes++;
             });
-
             severityChart.data.datasets[0].data = [h, m, l];
             severityChart.data.labels = [`High: ${h}`, `Medium: ${m}`, `Low: ${l}`];
             severityChart.update();
-
             typeChart.data.datasets[0].data = [potholes, speedbumps];
             typeChart.update();
         };
@@ -1301,14 +1504,12 @@
             const routePotholes = [];
             const routeCoords = route.coordinates;
             let high = 0, med = 0, low = 0;
-
-            const dataToAnalyze = filteredData.length > 0 || (document.getElementById('filter-severity').value !== "" || document.getElementById('filter-type').value !== "" || document.getElementById('filter-date').value !== "") ? filteredData : allData;
+            const dataToAnalyze = hasActiveFilters() ? filteredData : allData;
 
             dataToAnalyze.forEach(p => {
                 const pLL = L.latLng(p.lat, p.lon);
-                // sample route points to improve performance
                 for (let i = 0; i < routeCoords.length; i += 5) {
-                    if (pLL.distanceTo(routeCoords[i]) < 50) { // 50 meters tolerance
+                    if (pLL.distanceTo(routeCoords[i]) < 50) {
                         routePotholes.push(p);
                         if (p.severity === 'HIGH') high++;
                         else if (p.severity === 'MEDIUM') med++;
@@ -1320,67 +1521,48 @@
 
             document.getElementById('safety-indicator').style.display = 'block';
             document.getElementById('route-stats').style.display = 'block';
-
             document.getElementById('path-hazard-count').innerText = routePotholes.length;
             document.getElementById('path-distance').innerText = (route.summary.totalDistance / 1000).toFixed(1) + " km";
-
             document.getElementById('hazard-breakdown').style.display = 'flex';
             document.getElementById('path-high').innerText = high;
             document.getElementById('path-med').innerText = med;
             document.getElementById('path-low').innerText = low;
 
-            let score = 100 - (high * 10) - (med * 5) - (low * 2);
-            if (score < 0) score = 0;
-
+            let score = Math.max(0, 100 - (high * 10) - (med * 5) - (low * 2));
             document.getElementById('safety-score').innerText = score;
             const sInd = document.getElementById('safety-indicator');
             const sStat = document.getElementById('safety-status');
-            const accidentTag = document.getElementById('accident-tag');
-
+            const accTag = document.getElementById('accident-tag');
             sInd.className = 'safety-card';
-            if (score >= 80) {
-                sInd.classList.add('safety-safe');
-                sStat.innerText = 'Safe Route';
-                accidentTag.innerText = 'LOW PROBABILITY';
-            } else if (score >= 50) {
-                sInd.classList.add('safety-moderate');
-                sStat.innerText = 'Moderate Risk';
-                accidentTag.innerText = 'MODERATE PROBABILITY';
-            } else {
-                sInd.classList.add('safety-danger');
-                sStat.innerText = 'High Risk Route';
-                accidentTag.innerText = 'HIGH PROBABILITY';
-            }
+            if (score >= 80) { sInd.classList.add('safety-safe'); sStat.innerText = 'Safe Route'; accTag.innerText = 'LOW PROBABILITY'; }
+            else if (score >= 50) { sInd.classList.add('safety-moderate'); sStat.innerText = 'Moderate Risk'; accTag.innerText = 'MODERATE PROBABILITY'; }
+            else { sInd.classList.add('safety-danger'); sStat.innerText = 'High Risk Route'; accTag.innerText = 'HIGH PROBABILITY'; }
 
-            const pathPotholesDiv = document.getElementById('path-potholes');
+            const pathDiv = document.getElementById('path-potholes');
             const pathList = document.getElementById('route-pothole-list');
             pathList.innerHTML = '';
-
             if (routePotholes.length > 0) {
-                pathPotholesDiv.style.display = 'block';
+                pathDiv.style.display = 'block';
                 routePotholes.forEach(data => {
                     const item = document.createElement('div');
-                    item.className = 'pothole-item';
+                    item.className = 'detection-item';
                     item.innerHTML = `
-                <div style="display:flex; justify-content:space-between">
-                    <span class="severity-badge sev-${data.severity.toLowerCase()}">${data.severity}</span>
-                </div>
-                <div style="font-weight:700; margin-top:4px">${data.type}</div>
-            `;
+                        <div class="detection-thumb">${getThumbEmoji(data.type)}</div>
+                        <div class="detection-body">
+                            <div class="detection-name">${data.type}</div>
+                            <div class="detection-meta">📍 ${parseFloat(data.lat).toFixed(4)}, ${parseFloat(data.lon).toFixed(4)}</div>
+                        </div>
+                        <span class="sev-pill ${getSevClass(data.severity)}">${getSevLabel(data.severity)}</span>
+                    `;
                     pathList.appendChild(item);
                 });
-            } else {
-                pathPotholesDiv.style.display = 'none';
-            }
+            } else { pathDiv.style.display = 'none'; }
         };
 
         window.exportData = () => {
-            let csv = 'Type,Severity,Latitude,Longitude,Intensity,Timestamp\\n';
-            const dataToExport = filteredData.length > 0 || (document.getElementById('filter-severity').value !== "" || document.getElementById('filter-type').value !== "" || document.getElementById('filter-date').value !== "") ? filteredData : allData;
-
-            dataToExport.forEach(d => {
-                csv += `${d.type},${d.severity},${d.lat},${d.lon},${d.intensity},${new Date(d.timestamp).toISOString()}\\n`;
-            });
+            let csv = 'Type,Severity,Latitude,Longitude,Intensity,Timestamp\n';
+            const dataToExport = hasActiveFilters() ? filteredData : allData;
+            dataToExport.forEach(d => { csv += `${d.type},${d.severity},${d.lat},${d.lon},${d.intensity},${new Date(d.timestamp).toISOString()}\n`; });
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -1389,6 +1571,64 @@
             a.click();
             window.URL.revokeObjectURL(url);
         };
+
+        // ── FIX 2: Trend badge helper ──
+        function pctChange(curr, prev) {
+            if (prev === 0) return null; // can't compute % from zero
+            const diff = curr - prev;
+            const pct = Math.round((diff / prev) * 100);
+            return (pct >= 0 ? '+' : '') + pct + '%';
+        }
+
+        function updateTrendBadge(elId, curr, prev) {
+            const el = document.getElementById(elId);
+            if (isFirstLoad) {
+                // On first load: show actual count context instead of meaningless 0%
+                el.innerText = curr > 0 ? `${curr} total` : 'No data';
+                el.className = 'trend-badge trend-neutral';
+            } else {
+                const pct = pctChange(curr, prev);
+                if (pct === null) {
+                    el.innerText = curr > 0 ? `+${curr} new` : '–';
+                    el.className = 'trend-badge trend-neutral';
+                } else {
+                    el.innerText = pct;
+                    const isUp = curr >= prev;
+                    // For critical/medium: going UP is bad (trend-up = red), going DOWN is good (trend-down = green)
+                    // For total: neutral coloring
+                    if (elId === 'total-trend') {
+                        el.className = 'trend-badge ' + (isUp ? 'trend-up' : 'trend-down');
+                    } else {
+                        el.className = 'trend-badge ' + (isUp ? 'trend-up' : 'trend-down');
+                    }
+                }
+            }
+        }
+
+        // Firebase sync
+        const q = query(collection(db, "potholes"), orderBy("timestamp", "desc"));
+        onSnapshot(q, (snapshot) => {
+            const newData = [];
+            snapshot.forEach(doc => newData.push({ id: doc.id, ...doc.data() }));
+
+            const newTotal  = newData.length;
+            const newHigh   = newData.filter(d => d.severity === 'HIGH').length;
+            const newMedium = newData.filter(d => d.severity === 'MEDIUM').length;
+
+            // Update trend badges with real values
+            updateTrendBadge('total-trend',    newTotal,  prevTotal);
+            updateTrendBadge('critical-trend', newHigh,   prevHigh);
+            updateTrendBadge('medium-trend',   newMedium, prevMedium);
+
+            prevTotal  = newTotal;
+            prevHigh   = newHigh;
+            prevMedium = newMedium;
+            isFirstLoad = false;
+
+            allData = newData;
+            if (!isRouteActive) applyFilters();
+            if (severityChart && !isRouteActive) updateCharts(allData);
+        });
     </script>
 </body>
 
