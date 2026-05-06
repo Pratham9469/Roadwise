@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,7 +25,9 @@
             --info: #3b82f6;
             --dark: #1f2937;
             --light: #f9fafb;
-            --sidebar-width: 400px;
+            --sidebar-width: 480px;
+            /* Add transition for background and color changes */
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         body {
@@ -32,15 +35,196 @@
             margin: 0;
             background-color: var(--light);
             display: flex;
+            flex-direction: column;
             height: 100vh;
             width: 100vw;
             overflow: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Ensure all dark-mode elements transition smoothly */
+        .dark-mode,
+        .dark-mode * {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .top-navbar {
+            width: 100%;
+            height: 64px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            box-sizing: border-box;
+            z-index: 2000;
+            position: relative;
+        }
+
+        .main-body {
+            display: flex;
+            flex: 1;
+            width: 100%;
+            height: calc(100vh - 64px);
+            overflow: hidden;
+        }
+
+        .dark-mode {
+            --light: #111827;
+            --dark: #f9fafb;
+            --border: #374151;
+            background-color: var(--light);
+            color: var(--dark);
+        }
+
+        .dark-mode .sidebar,
+        .dark-mode .top-navbar,
+        .dark-mode .analytics-card,
+        .dark-mode .stat-card,
+        .dark-mode .filter-box {
+            background-color: #1f2937;
+            border-color: #374151;
+            color: #f9fafb;
+        }
+
+        .dark-mode .pothole-item {
+            border-color: #374151;
+        }
+
+        .dark-mode .pothole-item:hover,
+        .dark-mode .tab.active,
+        .dark-mode .routing-panel {
+            background-color: #374151;
+            border-color: #4b5563;
+        }
+
+        .dark-mode label,
+        .dark-mode .stat-label,
+        .dark-mode .filter-title {
+            color: #9ca3af;
+        }
+
+        .dark-mode .input-group input,
+        .dark-mode .filter-box select,
+        .dark-mode .filter-box input,
+        .dark-mode #global-search {
+            background-color: #111827;
+            border-color: #4b5563;
+            color: white;
+        }
+
+        .dark-mode .tabs {
+            border-color: #374151;
+        }
+
+        .dark-mode #global-search-results {
+            background-color: #1f2937;
+            color: white;
+            border: 1px solid #374151;
+        }
+
+        .dark-mode #recenter-btn {
+            background-color: #1f2937;
+            border-color: #4b5563;
+            color: white;
+        }
+
+        .dark-mode #recenter-btn:hover {
+            background-color: #374151;
+        }
+
+        .profile-dropdown-item:hover {
+            background: #fef2f2;
+        }
+
+        .dark-mode #profile-dropdown {
+            background: #1f2937 !important;
+            border-color: #374151 !important;
+            color: white;
+        }
+
+        .dark-mode .profile-dropdown-item:hover {
+            background: #374151 !important;
+        }
+
+        .dark-mode .mode-label {
+            color: #f9fafb !important;
+        }
+
+        .switch-toggle {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 22px;
+            margin: 0;
+        }
+
+        .switch-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .switch-toggle .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .3s;
+        }
+
+        .switch-toggle .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+        }
+
+        .switch-toggle input:checked+.slider {
+            background-color: var(--primary);
+        }
+
+        .switch-toggle input:checked+.slider:before {
+            transform: translateX(18px);
+        }
+
+        .switch-toggle .slider.round {
+            border-radius: 22px;
+        }
+
+        .switch-toggle .slider.round:before {
+            border-radius: 50%;
+        }
+
+        .search-result-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 13px;
+        }
+
+        .dark-mode .search-result-item {
+            border-color: #374151;
+        }
+
+        .search-result-item:hover {
+            background: #f3f4f6;
+        }
+
+        .dark-mode .search-result-item:hover {
+            background: #374151;
         }
 
         .sidebar {
             width: var(--sidebar-width);
-            min-width: 320px;
-            max-width: 600px;
             background: white;
             border-right: 1px solid #e5e7eb;
             display: flex;
@@ -51,22 +235,18 @@
             z-index: 1000;
         }
 
-        .resizer {
-            width: 8px;
-            cursor: col-resize;
-            background: #f3f4f6;
-            border-right: 1px solid #e5e7eb;
-            z-index: 1001;
+        #map {
+            flex: 1;
+            height: 100vh;
+            background: #e5e7eb;
         }
-        .resizer:hover { background: var(--primary); }
-
-        #map { flex: 1; height: 100vh; background: #e5e7eb; }
 
         .tabs {
             display: flex;
             margin-bottom: 20px;
             border-bottom: 2px solid #f3f4f6;
         }
+
         .tab {
             flex: 1;
             text-align: center;
@@ -78,6 +258,7 @@
             font-size: 13px;
             transition: all 0.2s;
         }
+
         .tab.active {
             color: var(--primary);
             border-bottom: 2px solid var(--primary);
@@ -91,8 +272,20 @@
             margin-bottom: 20px;
             border: 1px solid #e5e7eb;
         }
-        .input-group { margin-bottom: 12px; }
-        .input-group label { display: block; font-size: 10px; font-weight: 800; color: #374151; margin-bottom: 6px; text-transform: uppercase; }
+
+        .input-group {
+            margin-bottom: 12px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 10px;
+            font-weight: 800;
+            color: #374151;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
         .input-group input {
             width: 100%;
             padding: 10px 12px;
@@ -108,7 +301,7 @@
             border-radius: 12px;
             border: 1px solid #e5e7eb;
             margin-bottom: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
         .safety-card {
@@ -120,9 +313,18 @@
             display: none;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-        .safety-safe { background: var(--primary); }
-        .safety-moderate { background: var(--warning); }
-        .safety-danger { background: var(--danger); }
+
+        .safety-safe {
+            background: var(--primary);
+        }
+
+        .safety-moderate {
+            background: var(--warning);
+        }
+
+        .safety-danger {
+            background: var(--danger);
+        }
 
         .stat-grid {
             display: grid;
@@ -138,17 +340,36 @@
             border: 1px solid #e5e7eb;
         }
 
-        .stat-label { font-size: 10px; font-weight: 700; color: #6b7280; margin-bottom: 4px; text-transform: uppercase; }
-        .stat-value { font-size: 22px; font-weight: 700; color: var(--dark); }
+        .stat-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #6b7280;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
 
-        .pothole-list { margin-top: 12px; flex: 1; overflow-y: auto; }
+        .stat-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .pothole-list {
+            margin-top: 12px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
         .pothole-item {
             padding: 14px;
             border-bottom: 1px solid #f3f4f6;
             cursor: pointer;
             transition: background 0.2s;
         }
-        .pothole-item:hover { background: #f0fdf4; }
+
+        .pothole-item:hover {
+            background: #f0fdf4;
+        }
 
         .severity-badge {
             font-size: 9px;
@@ -157,11 +378,23 @@
             border-radius: 99px;
             text-transform: uppercase;
         }
-        .sev-high { background: #fee2e2; color: #ef4444; }
-        .sev-medium { background: #fef3c7; color: #d97706; }
-        .sev-low { background: #dcfce7; color: #10b981; }
 
-        #route-btn, #heatmap-btn {
+        .sev-high {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .sev-medium {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .sev-low {
+            background: #dcfce7;
+            color: #10b981;
+        }
+
+        #route-btn {
             background: var(--primary);
             color: white;
             border: none;
@@ -171,29 +404,21 @@
             cursor: pointer;
             width: 100%;
         }
-        #heatmap-btn {
-            background: var(--dark);
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: auto;
-            z-index: 1000;
-            padding: 12px 24px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
+
         #recenter-btn {
-            position: absolute;
-            bottom: 80px;
-            right: 20px;
-            background:#1f2937;
-            color: white;
-            border: none;
-            padding: 12px 18px;
-            border-radius: 10px;
-            font-weight: 700;
+            background: white;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
             cursor: pointer;
-            z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.2s;
+        }
+
+        #recenter-btn:hover {
+            background: #f9fafb;
         }
 
         /* FILTER BOX */
@@ -225,7 +450,8 @@
             background: #f9fafb;
             box-sizing: border-box;
             display: block;
-            appearance: none; /* Removes default OS arrow */
+            appearance: none;
+            /* Removes default OS arrow */
             -webkit-appearance: none;
             -moz-appearance: none;
         }
@@ -234,9 +460,11 @@
         .filter-box select {
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23374151'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 12px center; /* Matches the horizontal padding */
+            background-position: right 12px center;
+            /* Matches the horizontal padding */
             background-size: 16px;
-            padding-right: 40px; /* Space for the arrow */
+            padding-right: 40px;
+            /* Space for the arrow */
         }
 
         /* Specific styling for Date to align icon with the Select arrow */
@@ -246,6 +474,7 @@
             padding: 0;
             /* This forces the calendar icon to stay at the right edge */
         }
+
         .filter-box select:focus,
         .filter-box input:focus {
             outline: none;
@@ -267,578 +496,900 @@
         .filter-box {
             overflow: hidden;
         }
-        .chart-container { height: 220px; width: 100%; position: relative; }
+
+        .chart-container {
+            height: 220px;
+            width: 100%;
+            position: relative;
+        }
 
         .pulse {
-            width: 40px; height: 40px; border-radius: 50%; position: absolute;
-            left: -20px; top: -20px; pointer-events: none;
-            animation: pulse-animation 2s infinite; z-index: -1;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            position: absolute;
+            left: -20px;
+            top: -20px;
+            pointer-events: none;
+            animation: pulse-animation 2s infinite;
+            z-index: -1;
         }
+
         @keyframes pulse-animation {
-            0% { transform: scale(0.1); opacity: 0.8; }
-            70% { transform: scale(1.5); opacity: 0; }
-            100% { transform: scale(1.5); opacity: 0; }
+            0% {
+                transform: scale(0.1);
+                opacity: 0.8;
+            }
+
+            70% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
         }
 
 
 
-        .leaflet-div-icon { background: transparent !important; border: none !important; }
-        .leaflet-routing-container { display: none !important; }
+        /* LOADER UI */
+        #loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.7);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(4px);
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f4f6;
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loader-text {
+            margin-top: 15px;
+            font-weight: 700;
+            color: var(--dark);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .leaflet-div-icon {
+            background: transparent !important;
+            border: none !important;
+        }
+
+        .leaflet-routing-container {
+            display: none !important;
+        }
     </style>
 </head>
 
 <body>
 
-<div class="sidebar" id="sidebar">
-    <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px">
-        <div style="width:32px; height:32px; background:var(--primary); border-radius:8px; display:flex; align-items:center; justify-content:center; color:white; font-weight:900">RW</div>
-        <h1 style="font-size: 24px; margin: 0;">RoadWise</h1>
-    </div>
-    <p style="color: #6b7280; font-size: 14px; margin-bottom: 20px;">Civic Maintenance Dashboard</p>
-
-    <div class="tabs">
-        <div id="tab-overview" class="tab active" onclick="switchTab('overview')">Detections</div>
-        <div id="tab-route" class="tab" onclick="switchTab('route')">Safe Route</div>
-        <div id="tab-analytics" class="tab" onclick="switchTab('analytics')">Analytics</div>
+    <div id="loader-overlay">
+        <div class="spinner"></div>
+        <div id="loader-message" class="loader-text">Processing Data...</div>
     </div>
 
-    <!-- Tab 1: Overview -->
-    <div id="overview-content">
-        <div class="stat-grid">
-            <div class="stat-card"><div class="stat-label">Total</div><div id="total-count" class="stat-value">0</div></div>
-            <div class="stat-card"><div class="stat-label">Critical</div><div id="high-count" class="stat-value" style="color:var(--danger)">0</div></div>
-            <div class="stat-card"><div class="stat-label">Medium</div><div id="medium-count" class="stat-value" style="color:var(--warning)">0</div></div>
-            <div class="stat-card"><div class="stat-label">Avg Quality</div><div id="avg-intensity" class="stat-value">0.0</div></div>
-        </div>
-        <!-- 🔍 FILTERS -->
-<div class="filter-box">
-
-    <div class="filter-title">FILTERS</div>
-
-    <select id="filter-severity">
-        <option value="">All Severity</option>
-        <option value="HIGH">High</option>
-        <option value="MEDIUM">Medium</option>
-        <option value="LOW">Low</option>
-    </select>
-
-    <select id="filter-type">
-        <option value="">All Types</option>
-        <option value="pothole">Pothole</option>
-        <option value="speed">Speedbump</option>
-    </select>
-
-    <input type="date" id="filter-date">
-
-    <button onclick="resetFilters()">Reset Filters</button>
-
-</div>
-
-        <div class="pothole-list" id="pothole-list"></div>
-    </div>
-
-    <!-- Tab 2: Safe Route -->
-    <div id="route-content" style="display:none;">
-        <div class="routing-panel">
-            <div class="input-group">
-                <label>Start Location</label>
-                <input type="text" id="origin-input" list="origin-list" placeholder="Enter starting point...">
-                <datalist id="origin-list"></datalist>
-            </div>
-            <div class="input-group">
-                <label>Destination</label>
-                <input type="text" id="dest-input" list="dest-list" placeholder="Enter destination...">
-                <datalist id="dest-list"></datalist>
-            </div>
-            <button id="route-btn">🚀 Calculate Safest Path</button>
-            <div id="status-log" style="font-size: 11px; text-align: center; margin-top: 8px; color: #6b7280;">Awaiting Input</div>
+    <nav class="top-navbar">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <div
+                style="width:32px; height:32px; background:var(--primary); border-radius:8px; display:flex; align-items:center; justify-content:center; color:white; font-weight:900">
+                RW</div>
+            <h1 style="font-size: 20px; margin: 0; color: inherit;">RoadWise</h1>
         </div>
 
-        <div id="safety-indicator" class="safety-card">
-            <div style="font-size: 11px; font-weight: 800; opacity: 0.9;">SAFETY SCORE</div>
-            <div id="accident-tag" style="font-size:13px; font-weight:700; margin-top:6px;"></div>
-            <div id="safety-score" style="font-size: 42px; font-weight: 900; margin: 2px 0;">--</div>
-            <div id="safety-status" style="font-size: 14px; font-weight: 700; text-transform: uppercase;">Ready</div>
-            <div id="hazard-breakdown" style="display:none; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.2); font-size: 11px; display: flex; justify-content: space-around;">
-                <div><b id="path-high">0</b> High</div>
-                <div><b id="path-med">0</b> Med</div>
-                <div><b id="path-low">0</b> Low</div>
+        <div style="flex: 1; max-width: 400px; display: flex; align-items: center; margin: 0 40px; position:relative;">
+            <input type="text" id="global-search" placeholder="Search a city or location..."
+                style="width:100%; padding: 10px 16px; border-radius: 99px; border: 1px solid #e5e7eb; background: #f9fafb; outline:none; font-family:inherit;">
+            <div id="global-search-results"
+                style="position:absolute; top: 44px; left:0; width:100%; background:white; border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.1); max-height: 250px; overflow-y:auto; display:none; z-index: 2000;">
             </div>
         </div>
 
-        <div id="route-stats" style="display:none; margin-bottom: 10px;">
-            <div class="stat-grid">
-                <div class="stat-card"><div class="stat-label">Hazards on Path</div><div id="path-hazard-count" class="stat-value">0</div></div>
-                <div class="stat-card"><div class="stat-label">Trip Distance</div><div id="path-distance" class="stat-value">0 km</div></div>
+        <div style="display:flex; align-items:center; gap: 24px;">
+            <div style="display:flex; align-items:center; gap: 6px; font-size:12px; font-weight:600; color:#06b17b;">
+                <div
+                    style="width:8px; height:8px; background:#059669; border-radius:50%; box-shadow: 0 0 10px #059669; animation: pulse-animation 1.5s infinite;">
+                </div>
+                Live Sync Active
+            </div>
+            <button id="recenter-btn" onclick="recenterMap()">📍 Recenter</button>
+            <div style="display:flex; align-items:center; gap: 8px;">
+                <span class="mode-label" style="font-size: 13px; font-weight: 600; color: #374151;">🔥 Heatmap</span>
+                <label class="switch-toggle">
+                    <input type="checkbox" id="heatmap-toggle-checkbox" onchange="toggleHeatmap()">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            <button id="dark-mode-toggle" onclick="toggleDarkMode()"
+                style="background:transparent; border:none; cursor:pointer; font-size:18px;">🌙</button>
+            <div style="position: relative; cursor: pointer;" onclick="toggleProfileDropdown(event)">
+                <div style="display:flex; align-items:center; gap: 8px;">
+                    <div style="width:32px; height:32px; border-radius:50%; background:#e5e7eb; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#6b7280; text-transform: uppercase;"
+                        id="user-avatar">?</div>
+                    <span id="user-email"
+                        style="display: none; font-size: 13px; font-weight: 600; color: #6b7280;">Loading...</span>
+                </div>
+                <div id="profile-dropdown"
+                    style="display:none; position: absolute; top: calc(100% + 10px); right: 0; background: white; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 150px; z-index: 3000;">
+                    <div onclick="logOut()" class="profile-dropdown-item"
+                        style="padding: 12px; color: #ef4444; font-weight: 600; font-size: 13px; cursor: pointer; text-align: center; border-radius: 8px;">
+                        Log Out
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="main-body">
+        <div class="sidebar" id="sidebar">
+            <p style="color: #6b7280; font-size: 14px; margin-bottom: 20px; margin-top: 0;">Civic Maintenance Dashboard
+            </p>
+
+            <div class="tabs">
+                <div id="tab-overview" class="tab active" onclick="switchTab('overview')">Detections</div>
+                <div id="tab-route" class="tab" onclick="switchTab('route')">Safe Route</div>
+                <div id="tab-analytics" class="tab" onclick="switchTab('analytics')">Analytics</div>
+            </div>
+
+            <!-- Tab 1: Overview -->
+            <div id="overview-content">
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total</div>
+                        <div id="total-count" class="stat-value">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Critical</div>
+                        <div id="high-count" class="stat-value" style="color:var(--danger)">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Medium</div>
+                        <div id="medium-count" class="stat-value" style="color:var(--warning)">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Avg Quality</div>
+                        <div id="avg-intensity" class="stat-value">0.0</div>
+                    </div>
+                </div>
+                <!-- 🔍 FILTERS -->
+                <div class="filter-box">
+
+                    <div class="filter-title">FILTERS</div>
+
+                    <select id="filter-severity" onchange="applyFilters()">
+                        <option value="">All Severity</option>
+                        <option value="HIGH">High</option>
+                        <option value="MEDIUM">Medium</option>
+                        <option value="LOW">Low</option>
+                    </select>
+
+                    <select id="filter-type" onchange="applyFilters()">
+                        <option value="">All Types</option>
+                        <option value="pothole">Pothole</option>
+                        <option value="speed">Speedbump</option>
+                    </select>
+
+                    <input type="date" id="filter-date" onchange="applyFilters()">
+
+                    <button onclick="resetFilters()">Reset Filters</button>
+
+                </div>
+
+                <div class="pothole-list" id="pothole-list"></div>
+            </div>
+
+            <!-- Tab 2: Safe Route -->
+            <div id="route-content" style="display:none;">
+                <div class="routing-panel">
+                    <div class="input-group">
+                        <label>Start Location</label>
+                        <input type="text" id="origin-input" list="origin-list" placeholder="Enter starting point...">
+                        <datalist id="origin-list"></datalist>
+                    </div>
+                    <div class="input-group">
+                        <label>Destination</label>
+                        <input type="text" id="dest-input" list="dest-list" placeholder="Enter destination...">
+                        <datalist id="dest-list"></datalist>
+                    </div>
+                    <button id="route-btn">🚀 Calculate Safest Path</button>
+                    <div id="status-log" style="font-size: 11px; text-align: center; margin-top: 8px; color: #6b7280;">
+                        Awaiting Input</div>
+                </div>
+
+                <div id="safety-indicator" class="safety-card">
+                    <div style="font-size: 11px; font-weight: 800; opacity: 0.9;">SAFETY SCORE</div>
+                    <div id="accident-tag" style="font-size:13px; font-weight:700; margin-top:6px;"></div>
+                    <div id="safety-score" style="font-size: 42px; font-weight: 900; margin: 2px 0;">--</div>
+                    <div id="safety-status" style="font-size: 14px; font-weight: 700; text-transform: uppercase;">Ready
+                    </div>
+                    <div id="hazard-breakdown"
+                        style="display:none; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.2); font-size: 11px; display: flex; justify-content: space-around;">
+                        <div><b id="path-high">0</b> High</div>
+                        <div><b id="path-med">0</b> Med</div>
+                        <div><b id="path-low">0</b> Low</div>
+                    </div>
+                </div>
+
+                <div id="route-stats" style="display:none; margin-bottom: 10px;">
+                    <div class="stat-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Hazards on Path</div>
+                            <div id="path-hazard-count" class="stat-value" style="color: #ef4444;">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Trip Distance</div>
+                            <div id="path-distance" class="stat-value">0 km</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="path-potholes" style="display:none;">
+                    <p style="font-size: 11px; font-weight: 800; color: #ef4444; margin: 10px 0 5px 0;">HAZARDS ON THIS
+                        ROUTE:</p>
+                    <div id="route-pothole-list" class="pothole-list"
+                        style="max-height: 300px; border: 1px solid #e5e7eb; border-radius: 8px;"></div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Analytics -->
+            <div id="analytics-content" style="display:none;">
+                <div class="analytics-card">
+                    <div class="stat-label">Hazard Distribution</div>
+                    <div class="chart-container"><canvas id="severityChart"></canvas></div>
+                </div>
+                <div class="analytics-card">
+                    <div class="stat-label">Road Type Breakdown</div>
+                    <div class="chart-container"><canvas id="typeChart"></canvas></div>
+                </div>
+            </div>
+
+            <div style="margin-top:auto; display: flex; flex-direction: column; gap: 8px;">
+                <button id="export-btn" onclick="exportData()"
+                    style="color:white; padding:10px; border:none; border-radius:8px; cursor:pointer; background-color: #10b981; font-weight: bold;">Export
+                    CSV Data</button>
             </div>
         </div>
 
-        <div id="path-potholes" style="display:none;">
-            <p style="font-size: 10px; font-weight: 800; color: #374151; margin: 10px 0 5px 0;">HAZARDS ON THIS ROUTE:</p>
-            <div id="route-pothole-list" class="pothole-list" style="max-height: 300px; border: 1px solid #e5e7eb; border-radius: 8px;"></div>
-        </div>
+        <div id="map"></div>
     </div>
 
-    <!-- Tab 3: Analytics -->
-    <div id="analytics-content" style="display:none;">
-        <div class="analytics-card">
-            <div class="stat-label">Hazard Distribution</div>
-            <div class="chart-container"><canvas id="severityChart"></canvas></div>
-        </div>
-        <div class="analytics-card">
-            <div class="stat-label">Road Type Breakdown</div>
-            <div class="chart-container"><canvas id="typeChart"></canvas></div>
-        </div>
-    </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    <button id="export-btn" onclick="exportData()" style="background:#f3f4f6; color:white; margin-top:auto; padding:10px; border:1px solid #e5e7eb; border-radius:8px; cursor:pointer; background-color: #10b981; font-weight: bold;">Export CSV Data</button>
-</div>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCLqpE2lSlor9X55Cfold-5ozfDp25Sm3s",
+            authDomain: "roadwise-eb377.firebaseapp.com",
+            projectId: "roadwise-eb377",
+            storageBucket: "roadwise-eb377.firebasestorage.app",
+            messagingSenderId: "49371864924",
+            appId: "1:49371864924:web:ab0815f16a8f3df94deb99"
+        };
 
-<div class="resizer" id="dragMe"></div>
-<button id="recenter-btn" onclick="recenterMap()">📍 Recenter</button>
-<button id="heatmap-btn" onclick="toggleHeatmap()">🔥 Toggle Heatmap</button>
-<div id="map"></div>
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const L = window.L;
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        // Dashboard Auth Protection & User Profile Fetching
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "login.html";
+            } else {
+                document.getElementById('user-email').innerText = user.email;
+                document.getElementById('user-avatar').innerText = user.email.charAt(0);
+            }
+        });
 
-const firebaseConfig = {
-    apiKey: "AIzaSyCLqpE2lSlor9X55Cfold-5ozfDp25Sm3s",
-    authDomain: "roadwise-eb377.firebaseapp.com",
-    projectId: "roadwise-eb377",
-    storageBucket: "roadwise-eb377.firebasestorage.app",
-    messagingSenderId: "49371864924",
-    appId: "1:49371864924:web:ab0815f16a8f3df94deb99"
-};
+        // Dark Mode Functionality
+        window.toggleDarkMode = () => {
+            // Toggle dark mode on the root html element for broader effect
+            document.documentElement.classList.toggle('dark-mode');
+            const isDark = document.documentElement.classList.contains('dark-mode');
+            const toggleBtn = document.getElementById('dark-mode-toggle');
+            toggleBtn.innerText = isDark ? '☀️' : '🌙';
+            // Add rotation animation
+            toggleBtn.classList.add('rotate');
+            setTimeout(() => toggleBtn.classList.remove('rotate'), 500);
+        };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const L = window.L;
+        // Global Search Functionality
+        const globalSearch = document.getElementById('global-search');
+        const globalResults = document.getElementById('global-search-results');
 
-// Map Setup
-const map = L.map('map', { zoomControl: false }).setView([20.5937, 78.9629], 5);
-L.control.zoom({ position: 'topright' }).addTo(map);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        globalSearch.addEventListener('input', async (e) => {
+            const val = e.target.value;
+            if (val.length < 3) {
+                globalResults.style.display = 'none';
+                return;
+            }
+            try {
+                const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(val)}&limit=5`);
+                const data = await res.json();
+                globalResults.innerHTML = '';
+                if (data.features.length > 0) {
+                    globalResults.style.display = 'block';
+                    data.features.forEach(f => {
+                        const div = document.createElement('div');
+                        div.className = 'search-result-item';
+                        div.innerText = `${f.properties.name || ""} ${f.properties.city || ""} ${f.properties.country || ""}`.trim();
+                        div.onclick = () => {
+                            const lat = f.geometry.coordinates[1];
+                            const lon = f.geometry.coordinates[0];
+                            map.flyTo([lat, lon], 15);
+                            globalSearch.value = div.innerText;
+                            globalResults.style.display = 'none';
+                        };
+                        globalResults.appendChild(div);
+                    });
+                } else {
+                    globalResults.style.display = 'none';
+                }
+            } catch (e) { }
+        });
+
+        // Hide search results and dropdown on document click
+        document.addEventListener('click', (e) => {
+            if (e.target !== globalSearch) {
+                globalResults.style.display = 'none';
+            }
+            const dp = document.getElementById('profile-dropdown');
+            if (dp && e.target.closest('#profile-dropdown') === null && e.target.closest('[onclick="toggleProfileDropdown(event)"]') === null) {
+                dp.style.display = 'none';
+            }
+        });
+
+        window.toggleProfileDropdown = (event) => {
+            const dp = document.getElementById('profile-dropdown');
+            if (dp) {
+                dp.style.display = (dp.style.display === 'none' || dp.style.display === '') ? 'block' : 'none';
+            }
+            event.stopPropagation();
+        };
+
+        window.logOut = async () => {
+            try {
+                await signOut(auth);
+            } catch (e) {
+                console.error("Logout Error:", e);
+            }
+        };
+
+        // Map Setup
+        const map = L.map('map', { zoomControl: false }).setView([20.5937, 78.9629], 5);
+        L.control.zoom({ position: 'topright' }).addTo(map);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
 
-// Global Variables
-let allData = [];
-let markers = [];
-let heatmapLayer = null;
-let isHeatmapActive = false;
-let isRouteActive = false;
-let routingControl = null;
-let severityChart = null;
-let typeChart = null;
-let filteredData = [];
+        // Global Variables
+        let allData = [];
+        let markers = [];
+        let heatmapLayer = null;
+        let isHeatmapActive = false;
+        let isRouteActive = false;
+        let routingControl = null;
+        let severityChart = null;
+        let typeChart = null;
+        let filteredData = [];
+        let userMarker = null;
 
-
-
-// --- Tab Controller ---
-window.switchTab = (tab) => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.getElementById(`tab-${tab}`).classList.add('active');
-
-    document.getElementById('overview-content').style.display = tab === 'overview' ? 'block' : 'none';
-    document.getElementById('route-content').style.display = tab === 'route' ? 'block' : 'none';
-    document.getElementById('analytics-content').style.display = tab === 'analytics' ? 'block' : 'none';
-
-   if (tab === 'analytics') {
-    setTimeout(() => {
-        initCharts();
-        if (isRouteActive) {
-            updateCharts(); // ✅ keep filtered route data
-        } else {
-            updateCharts(allData); // ✅ normal full data
+        // --- Loader Helpers ---
+        function showLoader(msg = "Processing Data...") {
+            document.getElementById('loader-overlay').style.display = 'flex';
+            document.getElementById('loader-message').innerText = msg;
         }
-    }, 200);
-}
 
-    if (tab === 'overview') {
-        isRouteActive = false;
-        if (routingControl) { map.removeControl(routingControl); routingControl = null; }
-        document.getElementById('safety-indicator').style.display = 'none';
-        document.getElementById('route-stats').style.display = 'none';
-        updateUI(allData);
-        updateCharts(allData); // 🔥 reset charts to global data
-    }
-
-    setTimeout(() => map.invalidateSize(), 300);
-};
-
-// --- Resizer ---
-const resizer = document.getElementById('dragMe');
-const sidebar = document.getElementById('sidebar');
-let isResizing = false;
-
-resizer.addEventListener('mousedown', () => isResizing = true);
-document.addEventListener('mousemove', (e) => {
-    if (!isResizing) return;
-    const newWidth = e.clientX;
-    if (newWidth > 320 && newWidth < 650) {
-        sidebar.style.width = newWidth + 'px';
-        map.invalidateSize();
-    }
-});
-document.addEventListener('mouseup', () => isResizing = false);
-
-// --- Heatmap ---
-window.toggleHeatmap = () => {
-    isHeatmapActive = !isHeatmapActive;
-    if (isHeatmapActive) {
-        markers.forEach(m => map.removeLayer(m));
-        const points = allData.map(d => [d.lat, d.lon, 0.6]);
-        heatmapLayer = L.heatLayer(points, {radius: 30, blur: 15}).addTo(map);
-        document.getElementById('heatmap-btn').innerText = "📍 Show Markers";
-    } else {
-        if (heatmapLayer) map.removeLayer(heatmapLayer);
-        updateUI(allData);
-        document.getElementById('heatmap-btn').innerText = "🔥 Toggle Heatmap";
-    }
-};
-
-// --- Firebase Sync ---
-const q = query(collection(db, "potholes"), orderBy("timestamp", "desc"));
-onSnapshot(q, (snapshot) => {
-    allData = [];
-    snapshot.forEach(doc => allData.push({ id: doc.id, ...doc.data() }));
-    if (!isRouteActive) {
-    applyFilters(); // always apply filters after new data
-}
-    if (severityChart && !isRouteActive) updateCharts(allData);
-});
-
-function updateUI(dataList) {
-    const listEl = document.getElementById('pothole-list');
-    listEl.innerHTML = "";
-    markers.forEach(m => map.removeLayer(m));
-    markers = [];
-
-    let counts = { HIGH: 0, MEDIUM: 0, LOW: 0 };
-    let sumIntensity = 0;
-
-    dataList.forEach((data) => {
-        const color = data.severity === "HIGH" ? "#ef4444" : (data.severity === "MEDIUM" ? "#f59e0b" : "#10b981");
-
-        // Classic Pin Icon replaced with specific hazard logos
-        let iconUrl;
-        if ((data.type || "").toLowerCase().includes("speed")) {
-            iconUrl = "  https://static.vecteezy.com/system/resources/previews/021/506/339/large_2x/traffic-sign-regulatory-sign-free-png.png";
-        } else {
-            iconUrl = "   https://cdn-icons-png.flaticon.com/512/18215/18215529.png "; // Pothole Logo
+        function hideLoader() {
+            document.getElementById('loader-overlay').style.display = 'none';
         }
 
-        // Original Pin URLs
-        const basePinUrl = data.severity === "HIGH" ? "https://maps.google.com/mapfiles/ms/icons/red-dot.png" :
-                           (data.severity === "MEDIUM" ? "https://maps.google.com/mapfiles/ms/icons/orange-dot.png" :
-                           "https://maps.google.com/mapfiles/ms/icons/green-dot.png");
+        // --- Tab Controller ---
+        window.switchTab = (tab) => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
 
-        const divIcon = L.divIcon({
-            className: 'custom-div-icon',
-            html: `
+            document.getElementById('overview-content').style.display = tab === 'overview' ? 'block' : 'none';
+            document.getElementById('route-content').style.display = tab === 'route' ? 'block' : 'none';
+            document.getElementById('analytics-content').style.display = tab === 'analytics' ? 'block' : 'none';
+
+            if (tab === 'analytics') {
+                showLoader("Loading Charts...");
+                setTimeout(() => {
+                    initCharts();
+                    if (isRouteActive) {
+                        updateCharts();
+                    } else {
+                        updateCharts(allData);
+                    }
+                    hideLoader();
+                }, 400);
+            }
+
+            if (tab === 'overview') {
+                isRouteActive = false;
+                if (routingControl) { map.removeControl(routingControl); routingControl = null; }
+                document.getElementById('safety-indicator').style.display = 'none';
+                document.getElementById('route-stats').style.display = 'none';
+                document.getElementById('path-potholes').style.display = 'none';
+                updateUI(allData);
+            }
+
+            setTimeout(() => map.invalidateSize(), 300);
+        };
+
+
+
+        // --- Heatmap ---
+        window.toggleHeatmap = () => {
+            const checkbox = document.getElementById('heatmap-toggle-checkbox');
+            isHeatmapActive = checkbox.checked;
+            if (isHeatmapActive) {
+                markers.forEach(m => map.removeLayer(m));
+                const points = allData.map(d => [d.lat, d.lon, 0.6]);
+                heatmapLayer = L.heatLayer(points, { radius: 30, blur: 15 }).addTo(map);
+            } else {
+                if (heatmapLayer) map.removeLayer(heatmapLayer);
+                updateUI(allData);
+            }
+        };
+
+        // --- Firebase Sync ---
+        const q = query(collection(db, "potholes"), orderBy("timestamp", "desc"));
+        onSnapshot(q, (snapshot) => {
+            allData = [];
+            snapshot.forEach(doc => allData.push({ id: doc.id, ...doc.data() }));
+            if (!isRouteActive) {
+                applyFilters(); // always apply filters after new data
+            }
+            if (severityChart && !isRouteActive) updateCharts(allData);
+        });
+
+        function updateUI(dataList) {
+            const listEl = document.getElementById('pothole-list');
+            listEl.innerHTML = "";
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+
+            let counts = { HIGH: 0, MEDIUM: 0, LOW: 0 };
+            let sumIntensity = 0;
+
+            dataList.forEach((data) => {
+                const color = data.severity === "HIGH" ? "#ef4444" : (data.severity === "MEDIUM" ? "#f59e0b" : "#10b981");
+
+                // Classic Pin Icon replaced with specific hazard logos
+                let iconUrl;
+                if ((data.type || "").toLowerCase().includes("speed")) {
+                    iconUrl = "  https://static.vecteezy.com/system/resources/previews/021/506/339/large_2x/traffic-sign-regulatory-sign-free-png.png";
+                } else {
+                    iconUrl = "   https://cdn-icons-png.flaticon.com/512/18215/18215529.png "; // Pothole Logo
+                }
+
+                // Original Pin URLs
+                const basePinUrl = data.severity === "HIGH" ? "https://maps.google.com/mapfiles/ms/icons/red-dot.png" :
+                    (data.severity === "MEDIUM" ? "https://maps.google.com/mapfiles/ms/icons/orange-dot.png" :
+                        "https://maps.google.com/mapfiles/ms/icons/green-dot.png");
+
+                const divIcon = L.divIcon({
+                    className: 'custom-div-icon',
+                    html: `
                 <div class="pulse" style="background:${color}"></div>
                 <!-- Original Location Marker -->
                 <img src="${basePinUrl}" style="width:32px; height:32px; position:absolute; left:-16px; top:-32px; z-index:1">
                 <!-- Hazard Logo (Larger & More Visible) -->
                 <img src="${iconUrl}" style="width:42px; height:42px; position:absolute; left:-21px; top:-70px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); z-index:2">
             `,
-            iconSize: [0, 0]
-        });
+                    iconSize: [0, 0]
+                });
 
-        if (!isHeatmapActive) {
-            const marker = L.marker([data.lat, data.lon], { icon: divIcon }).addTo(map);
-            marker.bindPopup(`<b>${data.type}</b><br>Severity: ${data.severity}<br>Intensity: ${parseFloat(data.intensity).toFixed(2)}g`);
-            markers.push(marker);
+                if (!isHeatmapActive) {
+                    const marker = L.marker([data.lat, data.lon], { icon: divIcon }).addTo(map);
+                    marker.bindPopup(`<b>${data.type}</b><br>Severity: ${data.severity}<br>Intensity: ${parseFloat(data.intensity).toFixed(2)}g`);
+                    markers.push(marker);
+                }
+
+                counts[data.severity]++;
+                sumIntensity += parseFloat(data.intensity || 0);
+
+                const item = document.createElement('div');
+                item.className = 'pothole-item';
+                item.innerHTML = `
+    <div style="display:flex; justify-content:space-between">
+        <span class="severity-badge sev-${data.severity.toLowerCase()}">${data.severity}</span>
+        <small>${new Date(data.timestamp).toLocaleDateString()}</small>
+    </div>
+
+    <div style="font-weight:700; margin-top:4px">${data.type}</div>
+
+    <div style="font-size:11px; color:#6b7280; margin-top:4px">
+        📍 Lat: ${parseFloat(data.lat).toFixed(5)}, Lon: ${parseFloat(data.lon).toFixed(5)}
+    </div>
+`;
+                item.onclick = () => {
+                    map.flyTo([data.lat, data.lon], 17);
+                    const m = markers.find(mark => mark.getLatLng().lat === data.lat);
+                    if (m) m.openPopup();
+                };
+                listEl.appendChild(item);
+            });
+
+            document.getElementById('total-count').innerText = dataList.length;
+            document.getElementById('high-count').innerText = counts.HIGH;
+            document.getElementById('medium-count').innerText = counts.MEDIUM;
+            document.getElementById('avg-intensity').innerText = dataList.length ? (sumIntensity / dataList.length).toFixed(1) : "0.0";
         }
 
-        counts[data.severity]++;
-        sumIntensity += parseFloat(data.intensity || 0);
+        // --- Autocomplete ---
+        async function searchLocation(queryStr, listId) {
+            if (queryStr.length < 3) return;
+            try {
+                const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(queryStr)}&limit=5`);
+                const data = await res.json();
+                const list = document.getElementById(listId);
+                list.innerHTML = "";
+                data.features.forEach(f => {
+                    const opt = document.createElement('option');
+                    opt.value = `${f.properties.name || ""} ${f.properties.city || ""} ${f.properties.country || ""}`.trim();
+                    list.appendChild(opt);
+                });
+            } catch (e) { }
+        }
 
-        const item = document.createElement('div');
-        item.className = 'pothole-item';
-        item.innerHTML = `
-    <div style="display:flex; justify-content:space-between">
-        <span class="severity-badge sev-${data.severity.toLowerCase()}">${data.severity}</span>
-        <small>${new Date(data.timestamp).toLocaleDateString()}</small>
-    </div>
+        document.getElementById('origin-input').oninput = e => searchLocation(e.target.value, 'origin-list');
+        document.getElementById('dest-input').oninput = e => searchLocation(e.target.value, 'dest-list');
 
-    <div style="font-weight:700; margin-top:4px">${data.type}</div>
+        async function getCoords(str) {
+            const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(str)}&limit=1`);
+            const data = await res.json();
 
-    <div style="font-size:11px; color:#6b7280; margin-top:4px">
-        📍 Lat: ${parseFloat(data.lat).toFixed(5)}, Lon: ${parseFloat(data.lon).toFixed(5)}
-    </div>
-`;
-        item.onclick = () => {
-            map.flyTo([data.lat, data.lon], 17);
-            const m = markers.find(mark => mark.getLatLng().lat === data.lat);
-            if(m) m.openPopup();
-        };
-        listEl.appendChild(item);
-    });
+            if (!data.features.length) return null;
 
-    document.getElementById('total-count').innerText = dataList.length;
-    document.getElementById('high-count').innerText = counts.HIGH;
-    document.getElementById('medium-count').innerText = counts.MEDIUM;
-    document.getElementById('avg-intensity').innerText = dataList.length ? (sumIntensity/dataList.length).toFixed(1) : "0.0";
-}
+            const lat = data.features[0].geometry.coordinates[1];
+            const lon = data.features[0].geometry.coordinates[0];
 
-// --- Autocomplete ---
-async function searchLocation(queryStr, listId) {
-    if (queryStr.length < 3) return;
-    try {
-        const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(queryStr)}&limit=5`);
-        const data = await res.json();
-        const list = document.getElementById(listId);
-        list.innerHTML = "";
-        data.features.forEach(f => {
-            const opt = document.createElement('option');
-            opt.value = `${f.properties.name || ""} ${f.properties.city || ""} ${f.properties.country || ""}`.trim();
-            list.appendChild(opt);
-        });
-    } catch (e) {}
-}
+            // SNAP TO ROAD using OSRM nearest service
+            try {
+                const snapRes = await fetch(`https://router.project-osrm.org/nearest/v1/driving/${lon},${lat}`);
+                const snapData = await snapRes.json();
 
-document.getElementById('origin-input').oninput = e => searchLocation(e.target.value, 'origin-list');
-document.getElementById('dest-input').oninput = e => searchLocation(e.target.value, 'dest-list');
+                if (snapData.waypoints && snapData.waypoints.length > 0) {
+                    return L.latLng(
+                        snapData.waypoints[0].location[1],
+                        snapData.waypoints[0].location[0]
+                    );
+                }
+            } catch (e) { }
 
-async function getCoords(str) {
-    const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(str)}&limit=1`);
-    const data = await res.json();
-    return data.features.length ? L.latLng(data.features[0].geometry.coordinates[1], data.features[0].geometry.coordinates[0]) : null;
-}
+            return L.latLng(lat, lon);
+        }
 
-document.getElementById('route-btn').onclick = async () => {
-    const log = document.getElementById('status-log');
-    const start = await getCoords(document.getElementById('origin-input').value);
-    const end = await getCoords(document.getElementById('dest-input').value);
-    if (!start || !end) { alert("Location not found"); return; }
+        document.getElementById('route-btn').onclick = async () => {
+            const log = document.getElementById('status-log');
+            const startVal = document.getElementById('origin-input').value;
+            const endVal = document.getElementById('dest-input').value;
 
-    log.innerText = "🔄 Finding best route...";
-    isRouteActive = true;
-    if (routingControl) map.removeControl(routingControl);
+            if (!startVal || !endVal) { alert("Please enter both locations"); return; }
 
-    routingControl = L.Routing.control({
-        waypoints: [start, end],
-        lineOptions: { styles: [{ color: '#10b981', weight: 7, opacity: 0.9 }] },
-        createMarker: (i, wp) => L.marker(wp.latLng).bindPopup(i===0?"Start":"End")
-    }).on('routesfound', (e) => {
-        log.innerText = "✅ Analysis complete";
-        analyzeSafety(e.routes[0]);
-    }).addTo(map);
-};
+            showLoader("🔍 Calculating safest path...");
 
-function analyzeSafety(route) {
-    const pathHazards = allData.filter(h => route.coordinates.some(pt => L.latLng(h.lat, h.lon).distanceTo(pt) < 50));
-    let score = 100, hCount = 0, mCount = 0, lCount = 0;
+            try {
+                const start = await getCoords(startVal);
+                const end = await getCoords(endVal);
 
-    pathHazards.forEach(h => {
-        if (h.severity === 'HIGH') { score -= 15; hCount++; }
-        else if (h.severity === 'MEDIUM') { score -= 7; mCount++; }
-        else { score -= 3; lCount++; }
-    });
+                if (!start || !end) {
+                    hideLoader();
+                    alert("One of the locations could not be found. Please try a more specific address or city name.");
+                    return;
+                }
 
-    const ind = document.getElementById('safety-indicator');
-    ind.style.display = 'block';
-    document.getElementById('hazard-breakdown').style.display = 'flex';
-    document.getElementById('safety-score').innerText = Math.max(0, score);
-    document.getElementById('path-high').innerText = hCount;
-    document.getElementById('path-med').innerText = mCount;
-    document.getElementById('path-low').innerText = lCount;
+                log.innerText = "🔄 Finding best road route...";
 
-    let statusText = "";
-let accidentTag = "";
+                // Remove existing routing control if it exists
+                if (routingControl) {
+                    map.removeControl(routingControl);
+                    routingControl = null;
+                }
 
-if (score > 80) {
-    ind.className = "safety-card safety-safe";
-    statusText = "Safe Path";
-    accidentTag = "✅ Safe Road";
-}
-else if (score > 50) {
-    ind.className = "safety-card safety-moderate";
-    statusText = "Moderate Risk";
-    accidentTag = "⚠️ Accident Possible";
-}
-else {
-    ind.className = "safety-card safety-danger";
-    statusText = "Danger";
-    accidentTag = "❌ Accident Prone Area";
-}
+                // Initialize routing with explicit OSRM V1 Router
+                routingControl = L.Routing.control({
+                    router: L.Routing.osrmv1({
+                        serviceUrl: 'https://router.project-osrm.org/route/v1',
+                        timeout: 30 * 1000   // 👈 ADD THIS LINE HERE
+                    }),
+                    waypoints: [start, end],
+                    lineOptions: {
+                        styles: [{ color: '#10b981', weight: 8, opacity: 0.9 }],
+                        extendToWaypoints: true,
+                        missingRouteTolerance: 100
+                    },
+                    createMarker: (i, wp) => {
+                        return L.marker(wp.latLng, {
+                            draggable: false,
+                            zIndexOffset: 2000
+                        }).bindPopup(i === 0 ? "<b>Start Point</b>" : "<b>Destination</b>");
+                    },
+                    addWaypoints: false,
+                    routeWhileDragging: false,
+                    fitSelectedRoutes: true,
+                    show: false // Hide the instruction box
+                }).on('routesfound', (e) => {
+                    log.innerText = "✅ Path analyzed successfully";
+                    analyzeSafety(e.routes[0]);
+                    hideLoader();
+                }).on('routingerror', (err) => {
+                    console.error("Routing Error:", err);
+                    hideLoader();
+                    log.innerText = "❌ Route search failed";
+                    alert("No drivable road found between these two points. Please ensure both locations are reachable by car.");
+                }).addTo(map);
 
-document.getElementById('safety-status').innerText = statusText;
-
-// ✅ SHOW TEXT ON SCREEN (IMPORTANT)
-document.getElementById('accident-tag').innerText = accidentTag;
-
-// (optional tooltip - you can keep or remove)
-document.getElementById('safety-indicator').title = accidentTag;
-
-    document.getElementById('route-stats').style.display = 'block';
-    document.getElementById('path-hazard-count').innerText = pathHazards.length;
-    document.getElementById('path-distance').innerText = `${(route.summary.totalDistance/1000).toFixed(1)} km`;
-
-    // 🔥 NEW: Show the list under the inputs
-    document.getElementById('path-potholes').style.display = 'block';
-    renderHazardList(pathHazards, 'route-pothole-list');
-
-    // Only show path hazards on map
-    updateUI(pathHazards);
-    updateCharts(pathHazards);
-}
-
-// Helper to render lists into specific containers
-function renderHazardList(dataList, containerId) {
-    const listEl = document.getElementById(containerId);
-    listEl.innerHTML = "";
-
-    dataList.forEach((data) => {
-        const item = document.createElement('div');
-        item.className = 'pothole-item';
-        item.innerHTML = `
-    <div style="display:flex; justify-content:space-between">
-        <span class="severity-badge sev-${data.severity.toLowerCase()}">${data.severity}</span>
-        <small>${new Date(data.timestamp).toLocaleDateString()}</small>
-    </div>
-
-    <div style="font-weight:700; margin-top:4px">${data.type}</div>
-
-    <div style="font-size:11px; color:#6b7280; margin-top:4px">
-        📍 Lat: ${parseFloat(data.lat).toFixed(5)}, Lon: ${parseFloat(data.lon).toFixed(5)}
-    </div>
-`;
-        item.onclick = () => {
-            map.flyTo([data.lat, data.lon], 17);
-        };
-        listEl.appendChild(item);
-    });
-}
-
-// --- Analytics ---
-function initCharts() {
-    const sevCtx = document.getElementById('severityChart');
-    const typeCtx = document.getElementById('typeChart');
-    if (!sevCtx || !typeCtx) return;
-
-    if (severityChart) severityChart.destroy();
-    if (typeChart) typeChart.destroy();
-
-    severityChart = new Chart(sevCtx, {
-        type: 'doughnut',
-        data: { labels: ['High', 'Med', 'Low'], datasets: [{ data:[0,0,0], backgroundColor: ['#ef4444', '#f59e0b', '#10b981'] }] },
-        options: { responsive: true, maintainAspectRatio: false }
-    });
-
-    typeChart = new Chart(typeCtx, {
-        type: 'bar',
-        data: { labels: ['Pothole', 'Speedbump'], datasets: [{ label:'Hazards', data:[0,0], backgroundColor:'#3b82f6' }] },
-        options: { responsive: true, maintainAspectRatio: false }
-    });
-
-    updateCharts();
-}
-
-function updateCharts(data)
-{
-    if (!data) data = allData;
-    if (!severityChart) return;
-
-    let sData = [0, 0, 0], tData = [0, 0];
-
-    data.forEach(d => {
-        if (d.severity === 'HIGH') sData[0]++;
-        else if (d.severity === 'MEDIUM') sData[1]++;
-        else sData[2]++;
-
-        const t = (d.type || "").toLowerCase();
-        if (t.includes('pothole')) tData[0]++;
-        else if (t.includes('speed')) tData[1]++;
-    });
-
-    severityChart.data.datasets[0].data = sData;
-    severityChart.update();
-
-    typeChart.data.datasets[0].data = tData;
-    typeChart.update();
-}
-
-window.exportData = () => {
-    let csv = "Timestamp,Type,Severity,Intensity,Lat,Lon\n";
-    allData.forEach(d => { csv += `${new Date(d.timestamp).toISOString()},${d.type},${d.severity},${d.intensity},${d.lat},${d.lon}\n`; });
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = 'RoadWise_Report.csv'; a.click();
-};
-
-window.recenterMap = () => {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                const lat = pos.coords.latitude;
-                const lon = pos.coords.longitude;
-
-                map.setView([lat, lon], 16);
-
-                // optional marker for live location
-                L.marker([lat, lon])
-                    .addTo(map)
-                    .bindPopup("📍 You are here")
-                    .openPopup();
-
-            },
-            (err) => {
-                alert("Unable to access location. Please allow GPS permission.");
-                console.log(err);
-                map.setView([20.5937, 78.9629], 5);
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 0
+            } catch (error) {
+                console.error("General Routing Error:", error);
+                hideLoader();
+                alert("System error while calculating route. Please try again.");
             }
-        );
-    } else {
-        alert("Geolocation not supported in this browser.");
-        map.setView([20.5937, 78.9629], 5);
-    }
-};
+        };
 
-function applyFilters() {
-    const severity = document.getElementById('filter-severity').value;
-    const type = document.getElementById('filter-type').value.toLowerCase();
-    const date = document.getElementById('filter-date').value;
+        window.recenterMap = () => {
+            if (!isRouteActive) {
+                applyFilters();
+            }
+            showLoader("📍 Getting your location...");
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        const lat = pos.coords.latitude;
+                        const lon = pos.coords.longitude;
+                        map.setView([lat, lon], 16);
+                        if (userMarker) {
+                            userMarker.setLatLng([lat, lon]);
+                        } else {
+                            userMarker = L.marker([lat, lon]).addTo(map);
+                        }
 
-    filteredData = allData.filter(d => {
+                        userMarker.bindPopup("📍 You are here").openPopup();
+                        hideLoader();
+                    },
+                    (err) => {
+                        hideLoader();
+                        alert("GPS permission denied.");
+                        map.setView([20.5937, 78.9629], 5);
+                    }
+                );
+            } else {
+                hideLoader();
+                map.setView([20.5937, 78.9629], 5);
+            }
+        };
 
-        // Severity filter
-        if (severity && d.severity !== severity) return false;
+        window.applyFilters = () => {
+            const severity = document.getElementById('filter-severity').value;
+            const type = document.getElementById('filter-type').value;
+            const date = document.getElementById('filter-date').value;
 
-        // Type filter
-        if (type && !(d.type || "").toLowerCase().includes(type)) return false;
+            filteredData = allData.filter(d => {
+                let match = true;
 
-        // Date filter
-        if (date) {
-            const dDate = new Date(d.timestamp).toISOString().split('T')[0];
-            if (dDate !== date) return false;
-        }
+                if (severity && d.severity !== severity) match = false;
+                if (type && !(d.type || "").toLowerCase().includes(type)) match = false;
 
-        return true;
-    });
+                if (date) {
+                    const dDate = new Date(d.timestamp).toISOString().split('T')[0];
+                    if (dDate !== date) match = false;
+                }
 
-    updateUI(filteredData);
-    updateCharts(filteredData);
-}
+                return match;
+            });
 
-document.getElementById('filter-severity').onchange = applyFilters;
-document.getElementById('filter-type').onchange = applyFilters;
-document.getElementById('filter-date').onchange = applyFilters;
+            updateUI(filteredData);
+        };
 
-window.resetFilters = () => {
-    document.getElementById('filter-severity').value = "";
-    document.getElementById('filter-type').value = "";
-    document.getElementById('filter-date').value = "";
+        window.resetFilters = () => {
+            showLoader("🔄 Resetting data...");
+            document.getElementById('filter-severity').value = "";
+            document.getElementById('filter-type').value = "";
+            document.getElementById('filter-date').value = "";
+            updateUI(allData);
+            if (window.updateCharts) updateCharts(allData);
+            setTimeout(hideLoader, 300);
+        };
 
-    updateUI(allData);
-    updateCharts(allData);
-};
-</script>
+        window.initCharts = () => {
+            if (severityChart) return;
+
+            const sevCtx = document.getElementById('severityChart').getContext('2d');
+            severityChart = new Chart(sevCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['High', 'Medium', 'Low'],
+                    datasets: [{ data: [0, 0, 0], backgroundColor: ['#ef4444', '#f59e0b', '#10b981'] }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+            });
+
+            const barLabelsPlugin = {
+                id: 'barLabels',
+                afterDatasetsDraw(chart, args, options) {
+                    const { ctx } = chart;
+                    chart.data.datasets.forEach((dataset, i) => {
+                        const meta = chart.getDatasetMeta(i);
+                        meta.data.forEach((bar, index) => {
+                            const data = dataset.data[index];
+                            if (data > 0) {
+                                ctx.save();
+                                ctx.fillStyle = '#1f2937';
+                                ctx.font = 'bold 12px Inter';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'bottom';
+                                ctx.fillText(data, bar.x, bar.y - 5);
+                                ctx.restore();
+                            }
+                        });
+                    });
+                }
+            };
+
+            const typeCtx = document.getElementById('typeChart').getContext('2d');
+            typeChart = new Chart(typeCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Pothole', 'Speedbump'],
+                    datasets: [{ label: 'Count', data: [0, 0], backgroundColor: ['#ef4444', '#3b82f6'] }]
+                },
+                options: {
+                    layout: { padding: { top: 20 } },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } },
+                    plugins: { legend: { display: false } }
+                },
+                plugins: [barLabelsPlugin]
+            });
+        };
+
+        window.updateCharts = (dataList = filteredData.length > 0 || (document.getElementById('filter-severity').value || document.getElementById('filter-type').value || document.getElementById('filter-date').value) ? filteredData : allData) => {
+            if (!severityChart || !typeChart) return;
+
+            let h = 0, m = 0, l = 0;
+            let potholes = 0, speedbumps = 0;
+
+            dataList.forEach(d => {
+                if (d.severity === 'HIGH') h++;
+                else if (d.severity === 'MEDIUM') m++;
+                else l++;
+
+                if ((d.type || "").toLowerCase().includes("speed")) speedbumps++;
+                else potholes++;
+            });
+
+            severityChart.data.datasets[0].data = [h, m, l];
+            severityChart.data.labels = [`High: ${h}`, `Medium: ${m}`, `Low: ${l}`];
+            severityChart.update();
+
+            typeChart.data.datasets[0].data = [potholes, speedbumps];
+            typeChart.update();
+        };
+
+        window.analyzeSafety = (route) => {
+            if (!route || !route.coordinates) return;
+            const routePotholes = [];
+            const routeCoords = route.coordinates;
+            let high = 0, med = 0, low = 0;
+
+            const dataToAnalyze = filteredData.length > 0 || (document.getElementById('filter-severity').value !== "" || document.getElementById('filter-type').value !== "" || document.getElementById('filter-date').value !== "") ? filteredData : allData;
+
+            dataToAnalyze.forEach(p => {
+                const pLL = L.latLng(p.lat, p.lon);
+                // sample route points to improve performance
+                for (let i = 0; i < routeCoords.length; i += 5) {
+                    if (pLL.distanceTo(routeCoords[i]) < 50) { // 50 meters tolerance
+                        routePotholes.push(p);
+                        if (p.severity === 'HIGH') high++;
+                        else if (p.severity === 'MEDIUM') med++;
+                        else low++;
+                        break;
+                    }
+                }
+            });
+
+            document.getElementById('safety-indicator').style.display = 'block';
+            document.getElementById('route-stats').style.display = 'block';
+
+            document.getElementById('path-hazard-count').innerText = routePotholes.length;
+            document.getElementById('path-distance').innerText = (route.summary.totalDistance / 1000).toFixed(1) + " km";
+
+            document.getElementById('hazard-breakdown').style.display = 'flex';
+            document.getElementById('path-high').innerText = high;
+            document.getElementById('path-med').innerText = med;
+            document.getElementById('path-low').innerText = low;
+
+            let score = 100 - (high * 10) - (med * 5) - (low * 2);
+            if (score < 0) score = 0;
+
+            document.getElementById('safety-score').innerText = score;
+            const sInd = document.getElementById('safety-indicator');
+            const sStat = document.getElementById('safety-status');
+            const accidentTag = document.getElementById('accident-tag');
+
+            sInd.className = 'safety-card';
+            if (score >= 80) {
+                sInd.classList.add('safety-safe');
+                sStat.innerText = 'Safe Route';
+                accidentTag.innerText = 'LOW PROBABILITY';
+            } else if (score >= 50) {
+                sInd.classList.add('safety-moderate');
+                sStat.innerText = 'Moderate Risk';
+                accidentTag.innerText = 'MODERATE PROBABILITY';
+            } else {
+                sInd.classList.add('safety-danger');
+                sStat.innerText = 'High Risk Route';
+                accidentTag.innerText = 'HIGH PROBABILITY';
+            }
+
+            const pathPotholesDiv = document.getElementById('path-potholes');
+            const pathList = document.getElementById('route-pothole-list');
+            pathList.innerHTML = '';
+
+            if (routePotholes.length > 0) {
+                pathPotholesDiv.style.display = 'block';
+                routePotholes.forEach(data => {
+                    const item = document.createElement('div');
+                    item.className = 'pothole-item';
+                    item.innerHTML = `
+                <div style="display:flex; justify-content:space-between">
+                    <span class="severity-badge sev-${data.severity.toLowerCase()}">${data.severity}</span>
+                </div>
+                <div style="font-weight:700; margin-top:4px">${data.type}</div>
+            `;
+                    pathList.appendChild(item);
+                });
+            } else {
+                pathPotholesDiv.style.display = 'none';
+            }
+        };
+
+        window.exportData = () => {
+            let csv = 'Type,Severity,Latitude,Longitude,Intensity,Timestamp\\n';
+            const dataToExport = filteredData.length > 0 || (document.getElementById('filter-severity').value !== "" || document.getElementById('filter-type').value !== "" || document.getElementById('filter-date').value !== "") ? filteredData : allData;
+
+            dataToExport.forEach(d => {
+                csv += `${d.type},${d.severity},${d.lat},${d.lon},${d.intensity},${new Date(d.timestamp).toISOString()}\\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `roadwise_data_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        };
+    </script>
 </body>
+
 </html>
